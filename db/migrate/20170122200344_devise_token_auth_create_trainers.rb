@@ -36,7 +36,7 @@ class DeviseTokenAuthCreateTrainers < ActiveRecord::Migration[5.0]
       ## Trainer Info
       t.string :name
       t.string :lastname
-      t.string :telephone
+      t.string :mobile
       t.string :email
       t.text :speciality
       t.integer :type

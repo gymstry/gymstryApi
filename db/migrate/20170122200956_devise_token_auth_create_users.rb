@@ -39,7 +39,7 @@ class DeviseTokenAuthCreateUsers < ActiveRecord::Migration[5.0]
       t.string :username
       t.text :avatar
       t.string :email
-      t.string :telephone
+      t.string :mobile
       t.integer :remaining_days, :default => 0, :null => false
       t.date :birthday
       t.references :branch, foreing_key: true

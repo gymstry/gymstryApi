@@ -1,4 +1,13 @@
 Rails.application.routes.draw do
+
+  namespace :api, defaults: {format: :json} do
+    namespace :v1 do
+      controller :facebook do
+        post 'loginFacebook', to: "facebook#login_facebook"
+      end
+    end
+  end
+
   mount_devise_token_auth_for 'Gym', at: 'api/v1/gym_auth', skip: [:omniauth_callbacks]
 
   mount_devise_token_auth_for 'Branch', at: 'api/v1/branch_auth', skip: [:omniauth_callbacks,:confirmations], controllers: {
