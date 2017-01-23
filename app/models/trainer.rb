@@ -18,4 +18,20 @@ class Trainer < ActiveRecord::Base
     Trainer.new.set_token_resource(self)
   end
 
+  enum type_trainer: {
+    :personal_trainer => 0,
+    :gym => 1,
+    :both => 2
+  }
+
+  belongs_to :branch, optional: true
+  validates :name,:lastname,:mobile,:email,:speciality,:type_trainer,:avatar,:birthday,:username, presence: true
+  validates :name, :lastname, :speciality, length: {minimum: 3}
+  validates :username,:email, uniqueness: true
+  validates :username, length: {minimum: 5}
+  validates :type_trainer, inclusion: {in: type_trainers.keys}
+  validates_format_of :mobile, :with => /[0-9]{10,12}/x
+
+
+
 end

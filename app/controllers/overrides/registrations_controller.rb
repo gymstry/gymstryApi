@@ -1,26 +1,27 @@
 module Overrides
   class RegistrationsController < DeviseTokenAuth::RegistrationsController
     devise_token_auth_group :member, contains: [:gym, :branch]
-    before_action :authenticate_member!, only: [:create,:update,:destroy]
+    before_action :authenticate_member!, only: [:create]
 
     def create
-      @resource            = resource_class.new(sign_up_params)
-      @resource.provider   = "email"
+      @resource1            = resource_class.new(sign_up_params)
+      @resource1.provider   = "email"
       valid = false
-      type = @resource.is_a?(Branch) ? "branch" : "user"
+      type = @resource1.is_a?(Branch) ? "branch" : "user"
       type_login = current_member.is_a?(Gym) ? "gym" : "branch"
       if type == "branch" && type_login == "gym"
-        @resource.gym_id = current_member.id
+        @resource1.gym_id = current_member.id
         valid = true
+        p @resource1
       elsif type == "user" && type_login == "branch"
-        @resource.branch_id = current_member.id
+        @resource1.branch_id = current_member.id
         valid = true
       end
       # honor devise configuration for case_insensitive_keys
       if resource_class.case_insensitive_keys.include?(:email)
-        @resource.email = sign_up_params[:email].try :downcase
+        @resource1.email = sign_up_params[:email].try :downcase
       else
-        @resource.email = sign_up_params[:email]
+        @resource1.email = sign_up_params[:email]
       end
 
       # give redirect value from params priority
@@ -46,12 +47,12 @@ module Overrides
           # override email confirmation, must be sent manually from ctrl
           resource_class.set_callback("create", :after, :send_on_create_confirmation_instructions)
           resource_class.skip_callback("create", :after, :send_on_create_confirmation_instructions)
-          if @resource.save
-            yield @resource if block_given?
+          if @resource1.save
+            yield @resource1 if block_given?
 
-            unless @resource.confirmed?
+            unless @resource1.confirmed?
               # user will require email authentication
-              @resource.send_confirmation_instructions({
+              @resource1.send_confirmation_instructions({
                 client_config: params[:config_name],
                 redirect_url: @redirect_url
               })
@@ -61,22 +62,22 @@ module Overrides
               @client_id = SecureRandom.urlsafe_base64(nil, false)
               @token     = SecureRandom.urlsafe_base64(nil, false)
 
-              @resource.tokens[@client_id] = {
+              @resource1.tokens[@client_id] = {
                 token: BCrypt::Password.create(@token),
                 expiry: (Time.now + DeviseTokenAuth.token_lifespan).to_i
               }
 
-              @resource.save!
+              @resource1.save!
 
               update_auth_header
             end
             render_create_success
           else
-            clean_up_passwords @resource
+            clean_up_passwords @resource1
             render_create_error
           end
         rescue ActiveRecord::RecordNotUnique
-          clean_up_passwords @resource
+          clean_up_passwords @resource1
           render_create_error_email_already_exists
         end
       else
@@ -86,23 +87,12 @@ module Overrides
 
     def update
       if @resource
-        type = @resource.is_a?(Branch) ? "branch" : "user"
-        type_login = current_member.is_a?(Gym) ? "gym" : "branch"
-        valid = false
-        if type == "branch" && type_login == "gym"
-          valid = true
-        elsif type == "user" && type_login == "branch"
-          valid = true
-        end
-        if valid
-          if @resource.send(resource_update_method, account_update_params)
-            yield @resource if block_given?
-            render_update_success
-          else
-            render_update_error
-          end
+        @resource1 = @resource
+        if @resource1.send(resource_update_method, account_update_params)
+          yield @resource1 if block_given?
+          render_update_success
         else
-          render_foreign_key_error(type,type_login)
+          render_update_error
         end
       else
         render_update_error_user_not_found
@@ -111,21 +101,10 @@ module Overrides
 
     def destroy
       if @resource
-        type = @resource.is_a?(Branch) ? "branch" : "user"
-        type_login = current_member.is_a?(Gym) ? "gym" : "branch"
-        valid = false
-        if type == "branch" && type_login == "gym"
-          valid = true
-        elsif type == "user" && type_login == "branch"
-          valid = true
-        end
-        if valid
-          @resource.destroy
-          yield @resource if block_given?
-          render_destroy_success
-        else
-          render_foreign_key_error(type,type_login)
-        end
+        @resource1 = @resource
+        @resource1.destroy
+        yield @resource1 if block_given?
+        render_destroy_success
       else
         render_destroy_error
       end
@@ -136,16 +115,28 @@ module Overrides
       if type == "user"
         render json: {
           status: 'error',
-          errors: ["You need to log in as a branch in order to create, update or destroy an user."]
+          errors: ["You need to log in as a branch in order to create an user."]
         }, status: 401
       else
         render json: {
           status: 'error',
-          errors: ["You need to log in as a gym  in order to create, update or destroy one of your branches."]
+          errors: ["You need to log in as a gym  in order to create one a branch."]
         }, status: 401
       end
 
    end
+
+   def resource_data(opts={})
+      response_data = opts[:resource_json] || @resource1.as_json
+      if is_json_api
+        response_data['type'] = @resource1.class.name.parameterize
+      end
+      response_data
+    end
+
+    def resource_errors
+      return @resource1.errors.to_hash.merge(full_messages: @resource1.errors.full_messages)
+    end
 
   end
 end
