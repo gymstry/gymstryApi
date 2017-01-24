@@ -17,12 +17,29 @@ class User < ActiveRecord::Base
     User.new.set_token_resource(self)
   end
 
-  belongs_to :branch
+  enum gender: {
+    :male => 0,
+    :female => 1
+  }
 
-  validates :name,:lastname,:username,:avatar,:email,:mobile,:birthday,:remaining_days, presence: true
+  belongs_to :branch
+  has_one :medical_record
+  has_many :challanges, -> {reorder("challanges.start_date ASC")}, dependent: :destroy
+  has_many :c_trainers, through: :challanges, source: :trainer
+  has_many :measurements, -> {reorder("measurements.created_at ASC")}, dependent: :destroy
+  has_many :m_trainers, through: :measurements, source: :trainer
+  has_many :nutrition_routines, -> {reorder("nutrition_routines.start_date ASC")}, dependent: :destroy
+  has_many :n_trainers, through: :nutrition_routines, source: :trainer
+  has_many :workouts, -> {reorder("workouts.start_date")}, dependent: :destroy
+  has_many :w_trainers, through: :workouts, source: :trainer
+
+  validates :name,:objective,:gender,:lastname,:username,:avatar,:email,:mobile,:birthday,:remaining_days, presence: true
   validates :username,:email,uniqueness: true
   validates_format_of :mobile, :with => /[0-9]{10,12}/x
   validates :name, :lastname, length: {minimum: 3}
+  validates :objective, length: {minimum: 5}
   validates :username, length: {minimum: 5}
+  validates :gender, inclusion: {in: genders.keys}
+
 
 end

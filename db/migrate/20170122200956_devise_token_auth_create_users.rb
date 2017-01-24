@@ -42,6 +42,8 @@ class DeviseTokenAuthCreateUsers < ActiveRecord::Migration[5.0]
       t.string :mobile
       t.integer :remaining_days, :default => 0, :null => false
       t.date :birthday
+      t.integer :gender
+      t.text :objective
       t.references :branch, foreing_key: true
 
       ## Tokens

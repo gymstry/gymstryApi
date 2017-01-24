@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  description: MyText
+  proteins: 9.99
+  carbohydrates: 9.99
+  fats: 9.99
+  image: MyText
+  food_day: one
+
+two:
+  name: MyString
+  description: MyText
+  proteins: 9.99
+  carbohydrates: 9.99
+  fats: 9.99
+  image: MyText
+  food_day: two

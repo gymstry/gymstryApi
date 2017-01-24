@@ -6,6 +6,7 @@ class Gym < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
 
   has_many :branches, -> {reorder("branches.name ASC")}, dependent: :destroy
+  has_many :pictures, as: :imageable, dependent: :destroy
 
   validates :name, :description, :address, :telephone, :email, :speciality, :birthday, presence: true
   validates :name, :email, :telephone, uniqueness: true
