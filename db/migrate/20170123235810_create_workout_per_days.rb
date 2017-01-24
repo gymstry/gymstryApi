@@ -7,7 +7,7 @@ class CreateWorkoutPerDays < ActiveRecord::Migration[5.0]
       t.integer :series, :default => 4
       t.integer :repetition, :default => 12
       t.decimal :time, :default => 0
-      t.decimal :rest
+      t.decimal :rest, :default => 5
       t.references :workout, foreign_key: true
 
       t.timestamps

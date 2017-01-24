@@ -5,6 +5,8 @@ class User < ActiveRecord::Base
           :confirmable
   include DeviseTokenAuth::Concerns::User,Utility
 
+  default_scope {order("users.name ASC, users.lastname ASC")}
+
   def set_attributes(attribute)
     self.name = attribute.has_key?(:name) ? attribute[:name] : self.name
     self.lastname = attribute.has_key?(:lastname) ? attribute[:lastname] : self.lastname

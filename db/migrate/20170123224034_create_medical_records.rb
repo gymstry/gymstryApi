@@ -3,7 +3,7 @@ class CreateMedicalRecords < ActiveRecord::Migration[5.0]
     create_table :medical_records do |t|
       t.text :observation, :default => ""
       t.decimal :weight, :null => false
-      t.string :medication, :null => false
+      t.string :medication, :null => false, :default => ""
       t.decimal :body_fat_percentage, :null => false
       t.decimal :waist, :null => false
       t.decimal :hips, :null => false

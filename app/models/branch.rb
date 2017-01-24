@@ -3,6 +3,8 @@ class Branch < ActiveRecord::Base
   devise :database_authenticatable, :registerable,
           :recoverable, :rememberable, :trackable, :validatable
   include DeviseTokenAuth::Concerns::User
+  
+  default_scope {order("branches.name ASC")}
 
   belongs_to :gym, optional: true
   has_many :users, -> {reorder("users.name ASC, users.lastname ASC ")}, dependent: :destroy

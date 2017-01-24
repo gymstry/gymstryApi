@@ -52,16 +52,17 @@ ActiveRecord::Schema.define(version: 20170124000349) do
   end
 
   create_table "challanges", force: :cascade do |t|
-    t.string   "name",                     null: false
-    t.text     "description", default: ""
+    t.string   "name",                        null: false
+    t.text     "description",    default: ""
+    t.integer  "type_challange"
     t.date     "start_date"
     t.date     "end_date"
     t.integer  "state"
     t.decimal  "objective"
     t.integer  "trainer_id"
     t.integer  "user_id"
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
     t.index ["name"], name: "index_challanges_on_name", using: :btree
     t.index ["trainer_id"], name: "index_challanges_on_trainer_id", using: :btree
     t.index ["user_id"], name: "index_challanges_on_user_id", using: :btree
@@ -77,10 +78,10 @@ ActiveRecord::Schema.define(version: 20170124000349) do
 
   create_table "events", force: :cascade do |t|
     t.string   "name",                        null: false
-    t.text     "description"
+    t.text     "description", default: ""
     t.date     "class_date"
     t.decimal  "duration",    default: "1.0", null: false
-    t.integer  "type"
+    t.integer  "type_event"
     t.text     "image"
     t.integer  "branch_id"
     t.datetime "created_at",                  null: false
@@ -200,7 +201,7 @@ ActiveRecord::Schema.define(version: 20170124000349) do
   create_table "medical_records", force: :cascade do |t|
     t.text     "observation",         default: ""
     t.decimal  "weight",                           null: false
-    t.string   "medication",                       null: false
+    t.string   "medication",          default: "", null: false
     t.decimal  "body_fat_percentage",              null: false
     t.decimal  "waist",                            null: false
     t.decimal  "hips",                             null: false
@@ -336,7 +337,7 @@ ActiveRecord::Schema.define(version: 20170124000349) do
     t.integer  "series",      default: 4
     t.integer  "repetition",  default: 12
     t.decimal  "time",        default: "0.0"
-    t.decimal  "rest"
+    t.decimal  "rest",        default: "5.0"
     t.integer  "workout_id"
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
@@ -351,7 +352,7 @@ ActiveRecord::Schema.define(version: 20170124000349) do
     t.date     "start_date"
     t.integer  "days"
     t.date     "end_date"
-    t.integer  "day"
+    t.integer  "day",         default: 0
     t.integer  "level"
     t.integer  "trainer_id"
     t.integer  "user_id"

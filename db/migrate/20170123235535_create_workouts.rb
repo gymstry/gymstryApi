@@ -7,7 +7,7 @@ class CreateWorkouts < ActiveRecord::Migration[5.0]
       t.date :start_date
       t.integer :days
       t.date :end_date
-      t.integer :day
+      t.integer :day, :default => 0
       t.integer :level
       t.references :trainer, foreign_key: true
       t.references :user, foreign_key: true
