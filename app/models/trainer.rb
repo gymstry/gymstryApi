@@ -4,6 +4,8 @@ class Trainer < ActiveRecord::Base
           :recoverable, :rememberable, :trackable, :validatable,
           :confirmable
   include DeviseTokenAuth::Concerns::User,Utility
+  mount_uploader :avatar, AvatarUploader
+
 
   default_scope {order("trainers.name ASC, trainers.lastname ASC")}
 
@@ -39,12 +41,16 @@ class Trainer < ActiveRecord::Base
   has_many :w_users, through: :workouts, source: :user
 
 
-  validates :name,:lastname,:mobile,:email,:speciality,:type_trainer,:avatar,:birthday,:username, presence: true
+  validates :name,:lastname,:mobile,:email,:speciality,:type_trainer,:birthday,:username, presence: true
   validates :name, :lastname, :speciality, length: {minimum: 3}
   validates :username,:email, uniqueness: true
   validates :username, length: {minimum: 5}
   validates :type_trainer, inclusion: {in: type_trainers.keys}
   validates_format_of :mobile, :with => /[0-9]{10,12}/x
+  validates_integrity_of :avatar
+  validates_processing_of :avatar
+  validates :avatar, file_size: { less_than_or_equal_to: 1.megabyte }
+
 
 
 

@@ -1,5 +1,5 @@
 class Event < ApplicationRecord
-
+  mount_uploader :image, ImageUploader
   default_scope {order("events.name ASC")}
 
   belongs_to :branch
@@ -16,6 +16,10 @@ class Event < ApplicationRecord
   validates :name, length: {minimum: 3}
   validates :type_event, inclusion: {in: type_events.keys}
   validate :valid_date
+  validates_integrity_of :image
+  validates_processing_of :image
+  validates :image, file_size: { less_than_or_equal_to: 1.megabyte }
+
 
   protected
   def valid_date

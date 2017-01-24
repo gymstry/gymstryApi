@@ -45,3 +45,14 @@ gem 'rack-cors', :require => 'rack/cors'
 
 #request-limit
 gem 'rack-attack'
+
+#pagination
+gem 'will_paginate', '~> 3.1.0'
+
+#images
+gem 'carrierwave', '~> 1.0'
+gem "fog"
+gem 'mini_magick'
+
+#file validator
+gem 'file_validators'

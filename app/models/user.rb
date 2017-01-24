@@ -4,6 +4,7 @@ class User < ActiveRecord::Base
           :recoverable, :rememberable, :trackable, :validatable,
           :confirmable
   include DeviseTokenAuth::Concerns::User,Utility
+  mount_uploader :avatar, AvatarUploader
 
   default_scope {order("users.name ASC, users.lastname ASC")}
 
@@ -12,7 +13,9 @@ class User < ActiveRecord::Base
     self.lastname = attribute.has_key?(:lastname) ? attribute[:lastname] : self.lastname
     self.birthday = attribute.has_key?(:birthday) ? attribute[:birthday] : self.birthday
     self.mobile = attribute.has_key?(:mobile) ? attribute[:mobile] : self.mobile
-    self.avatar = attribute.has_key?(:avatar) ? attribute[:avatar] : self.avatar
+    if attribute.has_key?(:avatar)
+      self.remote_avatar_url = attribute.has_key?(:avatar)
+    end
   end
 
   def set_token
@@ -35,13 +38,17 @@ class User < ActiveRecord::Base
   has_many :workouts, -> {reorder("workouts.start_date")}, dependent: :destroy
   has_many :w_trainers, through: :workouts, source: :trainer
 
-  validates :name,:objective,:gender,:lastname,:username,:avatar,:email,:mobile,:birthday,:remaining_days, presence: true
+  validates :name,:objective,:gender,:lastname,:username,:email,:mobile,:birthday,:remaining_days, presence: true
   validates :username,:email,uniqueness: true
   validates_format_of :mobile, :with => /[0-9]{10,12}/x
   validates :name, :lastname, length: {minimum: 3}
   validates :objective, length: {minimum: 5}
   validates :username, length: {minimum: 5}
   validates :gender, inclusion: {in: genders.keys}
+  validates_integrity_of :avatar
+  validates_processing_of :avatar
+  validates :avatar, file_size: { less_than_or_equal_to: 1.megabyte }
+
 
 
 end
