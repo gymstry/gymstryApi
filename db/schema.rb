@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170124000349) do
+ActiveRecord::Schema.define(version: 20170125172739) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -91,18 +91,25 @@ ActiveRecord::Schema.define(version: 20170124000349) do
   end
 
   create_table "exercises", force: :cascade do |t|
-    t.string   "name",                            null: false
-    t.text     "description",        default: ""
-    t.text     "problems",           default: ""
-    t.string   "benefits",           default: ""
-    t.integer  "workout_per_day_id"
+    t.string   "name",                      null: false
+    t.text     "description",  default: ""
+    t.text     "problems",     default: ""
+    t.string   "benefits",     default: ""
     t.integer  "muscle_group"
-    t.text     "elements",           default: [],              array: true
+    t.text     "elements",     default: [],              array: true
     t.integer  "level"
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
     t.index ["name"], name: "index_exercises_on_name", using: :btree
-    t.index ["workout_per_day_id"], name: "index_exercises_on_workout_per_day_id", using: :btree
+  end
+
+  create_table "food_day_per_foods", force: :cascade do |t|
+    t.integer  "food_id"
+    t.integer  "food_day_id"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.index ["food_day_id"], name: "index_food_day_per_foods_on_food_day_id", using: :btree
+    t.index ["food_id"], name: "index_food_day_per_foods_on_food_id", using: :btree
   end
 
   create_table "food_days", force: :cascade do |t|
@@ -122,10 +129,8 @@ ActiveRecord::Schema.define(version: 20170124000349) do
     t.decimal  "carbohydrates"
     t.decimal  "fats"
     t.text     "image"
-    t.integer  "food_day_id"
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
-    t.index ["food_day_id"], name: "index_foods_on_food_day_id", using: :btree
     t.index ["name"], name: "index_foods_on_name", using: :btree
   end
 
@@ -330,6 +335,15 @@ ActiveRecord::Schema.define(version: 20170124000349) do
     t.index ["username"], name: "index_users_on_username", unique: true, using: :btree
   end
 
+  create_table "workout_per_day_per_exercises", force: :cascade do |t|
+    t.integer  "workout_per_day_id"
+    t.integer  "exercise_id"
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+    t.index ["exercise_id"], name: "index_workout_per_day_per_exercises_on_exercise_id", using: :btree
+    t.index ["workout_per_day_id"], name: "index_workout_per_day_per_exercises_on_workout_per_day_id", using: :btree
+  end
+
   create_table "workout_per_days", force: :cascade do |t|
     t.string   "name",                        null: false
     t.text     "description", default: ""
@@ -366,9 +380,9 @@ ActiveRecord::Schema.define(version: 20170124000349) do
   add_foreign_key "challanges", "trainers"
   add_foreign_key "challanges", "users"
   add_foreign_key "events", "branches"
-  add_foreign_key "exercises", "workout_per_days"
+  add_foreign_key "food_day_per_foods", "food_days"
+  add_foreign_key "food_day_per_foods", "foods"
   add_foreign_key "food_days", "nutrition_routines"
-  add_foreign_key "foods", "food_days"
   add_foreign_key "measurements", "trainers"
   add_foreign_key "measurements", "users"
   add_foreign_key "medical_record_by_diseases", "diseases"
@@ -379,6 +393,8 @@ ActiveRecord::Schema.define(version: 20170124000349) do
   add_foreign_key "prohibited_exercises", "exercises"
   add_foreign_key "prohibited_exercises", "medical_records"
   add_foreign_key "qualifications", "trainers"
+  add_foreign_key "workout_per_day_per_exercises", "exercises"
+  add_foreign_key "workout_per_day_per_exercises", "workout_per_days"
   add_foreign_key "workout_per_days", "workouts"
   add_foreign_key "workouts", "trainers"
   add_foreign_key "workouts", "users"

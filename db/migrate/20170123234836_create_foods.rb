@@ -7,7 +7,6 @@ class CreateFoods < ActiveRecord::Migration[5.0]
       t.decimal :carbohydrates
       t.decimal :fats
       t.text :image
-      t.references :food_day, foreign_key: true
 
       t.timestamps
     end

@@ -1,0 +1,9 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  workout_per_day: one
+  exercise: one
+
+two:
+  workout_per_day: two
+  exercise: two
