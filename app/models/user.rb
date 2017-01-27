@@ -7,6 +7,13 @@ class User < ActiveRecord::Base
   mount_uploader :avatar, AvatarUploader
 
   default_scope {order("users.name ASC, users.lastname ASC")}
+  scope :order_by_name, -> (ord) {order("users.name #{ord}")}
+  scope :order_by_lastname, -> (ord) {order("users.lastname #{ord}")}
+  scope :order_by_username, -> (ord) {order("users.username #{ord}")}
+  scope :order_by_email, -> (ord) {order("users.email #{ord}")}
+  scope :order_by_birthday, -> (ord) {order("users.birthday #{ord}")}
+  scope :order_by_gender, -> (ord) {order("users.gender #{ord}")}
+  scope :order_by_remaining_days, -> (ord) {order("users.remaining_days #{ord}")}
 
   def set_attributes(attribute)
     self.name = attribute.has_key?(:name) ? attribute[:name] : self.name
@@ -49,6 +56,82 @@ class User < ActiveRecord::Base
   validates_processing_of :avatar
   validates :avatar, file_size: { less_than_or_equal_to: 1.megabyte }
 
+  def self.load_users(page = 1,per_page = 10)
+    includes(:medical_record,challanges: [:trainer],measurements: [:trainer],workouts: [:trainer])
+      .paginate(:page => page,:per_page => per_page)
+  end
 
+  def self.user_by_id(id)
+    includes(:medical_record,challanges: [:trainer],measurements: [:trainer],workouts: [:trainer])
+      .find_by_id(id)
+  end
+
+  def self.users_by_ids(ids, page = 1, per_page = 10)
+    load_users(page,per_page)
+      .where(users: {id: ids})
+  end
+
+  def self.users_by_not_ids(ids, page = 1, per_page = 10)
+    load_users(page,per_page)
+      .where.not(users:{id: ids})
+  end
+
+  def self.user_by_email(email)
+    includes(:medical_record,challanges: [:trainer],measurements: [:trainer],workouts: [:trainer])
+      .find_by_email(email)
+  end
+
+  def self.user_by_username(username)
+    includes(:medical_record,challanges: [:trainer],measurements: [:trainer],workouts: [:trainer])
+      .find_by_username(username)
+  end
+
+  def self.users_by_name(name,page = 1, per_page = 10)
+    load_users(page,per_page)
+      .where("users.name LIKE ?","#{name.downcase}%")
+  end
+
+  def self.users_by_lastname(lastname, page = 1, per_page = 10)
+    load_users(page,per_page)
+      .where("users.lastname LIKE ?", "#{lastname.downcase}%")
+  end
+
+  def self.users_by_username_or_email(text,page = 1, per_page = 10)
+    load_users(page,per_page)
+      .where("users.email LIKE ? or users.username LIKE ?", "#{text.downcase}%", "#{text.downcase}%")
+  end
+
+  def self.users_by_birthday(type,page = 1, per_page = 10, year = 2017, month = 1)
+    load_users(page,per_page)
+      .where(users:{birthday: User.new.set_range(type,year,month)})
+  end
+
+  def self.users_with_challanges(page = 1, per_page = 10)
+    joins(:challanges)
+      .group("users.id")
+      .paginate(:page => page, :per_page => per_page)
+      .reorder("count(challanges.id)")
+  end
+
+  def self.users_with_measurements(page = 1, per_page = 10)
+    joins(:measurements)
+      .group("users.id")
+      .paginate(:page => page, :per_page => per_page)
+      .reorder("count(measurements.id)")
+  end
+
+  def self.users_with_nutrition_routines(page = 1, per_page = 10)
+    joins(:nutrition_routines)
+      .group("users.id")
+      .paginate(:page => page, :per_page => per_page)
+      .reorder("count(nutrition_routines.id)")
+  end
+
+  def self.users_with_workouts(page = 1, per_page = 10)
+    joins(:workouts)
+      .group("users.id")
+      .paginate(:page => page,:per_page =>per_page)
+      .reorder("count(workouts.id)")
+  end
 
 end

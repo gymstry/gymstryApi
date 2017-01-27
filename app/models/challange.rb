@@ -65,6 +65,12 @@ class Challange < ApplicationRecord
       .search_by_user_id(user)
   end
 
+  def self.challanges_by_start_date_and_user_and_trainer(date,user,trainer,page = 1, per_page = 10)
+    challanges_by_start_date(date,page,per_page)
+      .search_by_user_id(user)
+      .search_by_trainer_id(trainer)
+  end
+
   def self.challanges_by_end_date(date, page = 1, per_page = 10)
     load_challanges(page,per_page)
       .where(challanges: {end_date: date})
@@ -78,6 +84,12 @@ class Challange < ApplicationRecord
   def self.challanges_by_end_date_and_user(date, user, page = 1 ,per_page = 10)
     challanges_by_end_date(date,page,per_page)
       .search_by_user_id(user)
+  end
+
+  def self.challanges_by_end_date_and_user_and_trainer(date,user,trainer,page = 1, per_page = 10)
+    challanges_by_end_date(date,page,per_page)
+      .search_by_user_id(user)
+      .search_by_trainer_id(trainer)
   end
 
   def self.challanges_by_user_id(user_id, page = 1, per_page = 10)
