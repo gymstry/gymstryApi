@@ -38,9 +38,19 @@ class Branch < ActiveRecord::Base
       .find_by_email(email)
   end
 
+  def self.branch_by_email_and_gym_id(gym_id,email)
+    includes(:events,gym: [:images],users: [:medical_record,:challanges,:workouts,:nutrition_routines],trainers: [:qualifications,:challanges,:workouts,:nutrition_routines])
+      .find_by_gym_id_and_email(gym_id,email)
+  end
+
   def self.branches_by_name(name,page = 1, per_page = 10)
     load_branches(page,per_page)
       .where("branches.name LIKE ?", "#{name.downcase}%")
+  end
+
+  def self.branches_by_name_and_gym_id(gym_id,name,page = 1, per_page = 10)
+    branches_by_name(name,page,per_page)
+      .where(branches:{gym_id: gym_id})
   end
 
   def self.branches_by_gym_id(gym_id,page = 1, per_page = 10)
@@ -82,7 +92,7 @@ class Branch < ActiveRecord::Base
     branches_with_events_by_date(Branch.new.set_range(type,year,month),page,per_page)
   end
 
-  def self.branches_with_events_by_range_by_gym(gym_id,type,page = 1,per_page = 10, year = 2017, month = 1)
+  def self.branches_with_events_by_range_and_gym(gym_id,type,page = 1,per_page = 10, year = 2017, month = 1)
     branches_with_events_by_date_by_gym(gym_id,Branch.new.set_range(type,year,month),page,per_page)
   end
 

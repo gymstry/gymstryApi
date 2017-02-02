@@ -22,6 +22,8 @@ module Utility
         range = month(year_number,month_number)
       when "year"
         range = year(year_number)
+      else
+        range = today
     end
     range
   end
