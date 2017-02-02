@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  weight: 9.99
+  hips: 9.99
+  chest: 9.99
+  body_fat_percentage: 9.99
+  waist: 9.99
+  user: one
+  trainer: one
+
+two:
+  weight: 9.99
+  hips: 9.99
+  chest: 9.99
+  body_fat_percentage: 9.99
+  waist: 9.99
+  user: two
+  trainer: two

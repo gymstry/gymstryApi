@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170123204629) do
+ActiveRecord::Schema.define(version: 20170125172739) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -38,6 +38,7 @@ ActiveRecord::Schema.define(version: 20170123204629) do
     t.string   "email"
     t.string   "address"
     t.string   "telephone"
+    t.string   "open"
     t.integer  "gym_id"
     t.json     "tokens"
     t.datetime "created_at",                               null: false
@@ -48,6 +49,89 @@ ActiveRecord::Schema.define(version: 20170123204629) do
     t.index ["reset_password_token"], name: "index_branches_on_reset_password_token", unique: true, using: :btree
     t.index ["uid", "provider"], name: "index_branches_on_uid_and_provider", unique: true, using: :btree
     t.index ["unlock_token"], name: "index_branches_on_unlock_token", unique: true, using: :btree
+  end
+
+  create_table "challanges", force: :cascade do |t|
+    t.string   "name",                        null: false
+    t.text     "description",    default: ""
+    t.integer  "type_challange"
+    t.date     "start_date"
+    t.date     "end_date"
+    t.integer  "state"
+    t.decimal  "objective"
+    t.integer  "trainer_id"
+    t.integer  "user_id"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.index ["name"], name: "index_challanges_on_name", using: :btree
+    t.index ["trainer_id"], name: "index_challanges_on_trainer_id", using: :btree
+    t.index ["user_id"], name: "index_challanges_on_user_id", using: :btree
+  end
+
+  create_table "diseases", force: :cascade do |t|
+    t.string   "name",        null: false
+    t.text     "description"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.index ["name"], name: "index_diseases_on_name", using: :btree
+  end
+
+  create_table "events", force: :cascade do |t|
+    t.string   "name",                        null: false
+    t.text     "description", default: ""
+    t.date     "class_date"
+    t.decimal  "duration",    default: "1.0", null: false
+    t.integer  "type_event"
+    t.text     "image"
+    t.integer  "branch_id"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.index ["branch_id"], name: "index_events_on_branch_id", using: :btree
+    t.index ["name"], name: "index_events_on_name", using: :btree
+  end
+
+  create_table "exercises", force: :cascade do |t|
+    t.string   "name",                      null: false
+    t.text     "description",  default: ""
+    t.text     "problems",     default: ""
+    t.string   "benefits",     default: ""
+    t.integer  "muscle_group"
+    t.text     "elements",     default: [],              array: true
+    t.integer  "level"
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+    t.index ["name"], name: "index_exercises_on_name", using: :btree
+  end
+
+  create_table "food_day_per_foods", force: :cascade do |t|
+    t.integer  "food_id"
+    t.integer  "food_day_id"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.index ["food_day_id"], name: "index_food_day_per_foods_on_food_day_id", using: :btree
+    t.index ["food_id"], name: "index_food_day_per_foods_on_food_id", using: :btree
+  end
+
+  create_table "food_days", force: :cascade do |t|
+    t.integer  "type_food",                         null: false
+    t.text     "description",          default: ""
+    t.text     "benefits",             default: ""
+    t.integer  "nutrition_routine_id"
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.index ["nutrition_routine_id"], name: "index_food_days_on_nutrition_routine_id", using: :btree
+  end
+
+  create_table "foods", force: :cascade do |t|
+    t.string   "name",                       null: false
+    t.text     "description",   default: ""
+    t.decimal  "proteins"
+    t.decimal  "carbohydrates"
+    t.decimal  "fats"
+    t.text     "image"
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+    t.index ["name"], name: "index_foods_on_name", using: :btree
   end
 
   create_table "gyms", force: :cascade do |t|
@@ -84,6 +168,88 @@ ActiveRecord::Schema.define(version: 20170123204629) do
     t.index ["reset_password_token"], name: "index_gyms_on_reset_password_token", unique: true, using: :btree
     t.index ["uid", "provider"], name: "index_gyms_on_uid_and_provider", unique: true, using: :btree
     t.index ["unlock_token"], name: "index_gyms_on_unlock_token", unique: true, using: :btree
+  end
+
+  create_table "images", force: :cascade do |t|
+    t.text     "description",    default: "", null: false
+    t.text     "image"
+    t.string   "imageable_type"
+    t.integer  "imageable_id"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.index ["imageable_type", "imageable_id"], name: "index_images_on_imageable_type_and_imageable_id", using: :btree
+  end
+
+  create_table "measurements", force: :cascade do |t|
+    t.decimal  "weight",              null: false
+    t.decimal  "hips",                null: false
+    t.decimal  "chest",               null: false
+    t.decimal  "body_fat_percentage", null: false
+    t.decimal  "waist",               null: false
+    t.integer  "user_id"
+    t.integer  "trainer_id"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.index ["trainer_id"], name: "index_measurements_on_trainer_id", using: :btree
+    t.index ["user_id"], name: "index_measurements_on_user_id", using: :btree
+  end
+
+  create_table "medical_record_by_diseases", force: :cascade do |t|
+    t.integer  "medical_record_id"
+    t.integer  "disease_id"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.index ["disease_id"], name: "index_medical_record_by_diseases_on_disease_id", using: :btree
+    t.index ["medical_record_id"], name: "index_medical_record_by_diseases_on_medical_record_id", using: :btree
+  end
+
+  create_table "medical_records", force: :cascade do |t|
+    t.text     "observation",         default: ""
+    t.decimal  "weight",                           null: false
+    t.string   "medication",          default: "", null: false
+    t.decimal  "body_fat_percentage",              null: false
+    t.decimal  "waist",                            null: false
+    t.decimal  "hips",                             null: false
+    t.decimal  "chest",                            null: false
+    t.integer  "user_id"
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
+    t.index ["user_id"], name: "index_medical_records_on_user_id", using: :btree
+  end
+
+  create_table "nutrition_routines", force: :cascade do |t|
+    t.string   "name",                     null: false
+    t.text     "description", default: ""
+    t.text     "objective",   default: ""
+    t.date     "start_date"
+    t.date     "end_date"
+    t.integer  "user_id"
+    t.integer  "trainer_id"
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+    t.index ["name"], name: "index_nutrition_routines_on_name", using: :btree
+    t.index ["trainer_id"], name: "index_nutrition_routines_on_trainer_id", using: :btree
+    t.index ["user_id"], name: "index_nutrition_routines_on_user_id", using: :btree
+  end
+
+  create_table "prohibited_exercises", force: :cascade do |t|
+    t.integer  "exercise_id"
+    t.integer  "medical_record_id"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.index ["exercise_id"], name: "index_prohibited_exercises_on_exercise_id", using: :btree
+    t.index ["medical_record_id"], name: "index_prohibited_exercises_on_medical_record_id", using: :btree
+  end
+
+  create_table "qualifications", force: :cascade do |t|
+    t.text     "description",   default: ""
+    t.string   "name",                       null: false
+    t.text     "qualification"
+    t.integer  "trainer_id"
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+    t.index ["name"], name: "index_qualifications_on_name", using: :btree
+    t.index ["trainer_id"], name: "index_qualifications_on_trainer_id", using: :btree
   end
 
   create_table "trainers", force: :cascade do |t|
@@ -154,6 +320,8 @@ ActiveRecord::Schema.define(version: 20170123204629) do
     t.string   "mobile"
     t.integer  "remaining_days",         default: 0,       null: false
     t.date     "birthday"
+    t.integer  "gender"
+    t.text     "objective"
     t.integer  "branch_id"
     t.json     "tokens"
     t.datetime "created_at",                               null: false
@@ -167,4 +335,67 @@ ActiveRecord::Schema.define(version: 20170123204629) do
     t.index ["username"], name: "index_users_on_username", unique: true, using: :btree
   end
 
+  create_table "workout_per_day_per_exercises", force: :cascade do |t|
+    t.integer  "workout_per_day_id"
+    t.integer  "exercise_id"
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+    t.index ["exercise_id"], name: "index_workout_per_day_per_exercises_on_exercise_id", using: :btree
+    t.index ["workout_per_day_id"], name: "index_workout_per_day_per_exercises_on_workout_per_day_id", using: :btree
+  end
+
+  create_table "workout_per_days", force: :cascade do |t|
+    t.string   "name",                        null: false
+    t.text     "description", default: ""
+    t.text     "benefits",    default: ""
+    t.integer  "series",      default: 4
+    t.integer  "repetition",  default: 12
+    t.decimal  "time",        default: "0.0"
+    t.decimal  "rest",        default: "5.0"
+    t.integer  "workout_id"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.index ["name"], name: "index_workout_per_days_on_name", using: :btree
+    t.index ["workout_id"], name: "index_workout_per_days_on_workout_id", using: :btree
+  end
+
+  create_table "workouts", force: :cascade do |t|
+    t.string   "name",                     null: false
+    t.text     "description", default: ""
+    t.text     "objective",   default: ""
+    t.date     "start_date"
+    t.integer  "days"
+    t.date     "end_date"
+    t.integer  "day",         default: 0
+    t.integer  "level"
+    t.integer  "trainer_id"
+    t.integer  "user_id"
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+    t.index ["name"], name: "index_workouts_on_name", using: :btree
+    t.index ["trainer_id"], name: "index_workouts_on_trainer_id", using: :btree
+    t.index ["user_id"], name: "index_workouts_on_user_id", using: :btree
+  end
+
+  add_foreign_key "challanges", "trainers"
+  add_foreign_key "challanges", "users"
+  add_foreign_key "events", "branches"
+  add_foreign_key "food_day_per_foods", "food_days"
+  add_foreign_key "food_day_per_foods", "foods"
+  add_foreign_key "food_days", "nutrition_routines"
+  add_foreign_key "measurements", "trainers"
+  add_foreign_key "measurements", "users"
+  add_foreign_key "medical_record_by_diseases", "diseases"
+  add_foreign_key "medical_record_by_diseases", "medical_records"
+  add_foreign_key "medical_records", "users"
+  add_foreign_key "nutrition_routines", "trainers"
+  add_foreign_key "nutrition_routines", "users"
+  add_foreign_key "prohibited_exercises", "exercises"
+  add_foreign_key "prohibited_exercises", "medical_records"
+  add_foreign_key "qualifications", "trainers"
+  add_foreign_key "workout_per_day_per_exercises", "exercises"
+  add_foreign_key "workout_per_day_per_exercises", "workout_per_days"
+  add_foreign_key "workout_per_days", "workouts"
+  add_foreign_key "workouts", "trainers"
+  add_foreign_key "workouts", "users"
 end

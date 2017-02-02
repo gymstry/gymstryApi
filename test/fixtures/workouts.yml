@@ -1,0 +1,23 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  description: MyText
+  objective: MyText
+  start_date: 2017-01-23
+  days: 1
+  end_date: 2017-01-23
+  day: 1
+  trainer: 
+  user: one
+
+two:
+  name: MyString
+  description: MyText
+  objective: MyText
+  start_date: 2017-01-23
+  days: 1
+  end_date: 2017-01-23
+  day: 1
+  trainer: 
+  user: two
