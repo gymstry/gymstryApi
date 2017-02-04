@@ -23,10 +23,14 @@ class Challange < ApplicationRecord
   }
 
   enum type_challange: {
-    :weight_loss => 0,
+    :weight => 0,
     :eat_carbohydrates => 1,
     :eat_proteins => 2,
-    :eat_fats => 3
+    :eat_fats => 3,
+    :hip => 4,
+    :chest => 5,
+    :body_fat_percentage => 6,
+    :waist => 7
   }
 
   validates :name, :start_date, :end_date, :objective, :type_challange, presence: true

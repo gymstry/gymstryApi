@@ -1,6 +1,6 @@
-class DeviseTokenAuthCreateGyms < ActiveRecord::Migration[5.0]
+class DeviseTokenAuthCreateAdmins < ActiveRecord::Migration[5.0]
   def change
-    create_table(:gyms) do |t|
+    create_table(:admins) do |t|
       ## Required
       t.string :provider, :null => false, :default => "email"
       t.string :uid, :null => false, :default => ""
@@ -33,14 +33,10 @@ class DeviseTokenAuthCreateGyms < ActiveRecord::Migration[5.0]
       t.string   :unlock_token # Only if unlock strategy is :email or :both
       t.datetime :locked_at
 
-      ## Gym Info
+      ## User Info
       t.string :name
-      t.string :description
-      t.string :address
-      t.string :telephone
+      t.string :username
       t.string :email
-      t.string :speciality, array: true, default: []
-      t.date :birthday
 
       ## Tokens
       t.json :tokens
@@ -48,10 +44,10 @@ class DeviseTokenAuthCreateGyms < ActiveRecord::Migration[5.0]
       t.timestamps
     end
 
-    add_index :gyms, :email,                unique: true
-    add_index :gyms, [:uid, :provider],     unique: true
-    add_index :gyms, :reset_password_token, unique: true
-    add_index :gyms, :confirmation_token,   unique: true
-    add_index :gyms, :unlock_token,       unique: true
+    add_index :admins, :email,                unique: true
+    add_index :admins, [:uid, :provider],     unique: true
+    add_index :admins, :reset_password_token, unique: true
+    add_index :admins, :confirmation_token,   unique: true
+    # add_index :admins, :unlock_token,       unique: true
   end
 end

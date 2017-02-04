@@ -9,14 +9,17 @@ class ApplicationController < ActionController::API
       devise_parameter_sanitizer.permit(:sign_up, keys: [:name,:description,:address,:telephone,:speciality,:birthday])
       devise_parameter_sanitizer.permit(:account_update, keys: [:description,:address,:telephone,:speciality,:birthday])
     elsif resource_class == Branch
-      devise_parameter_sanitizer.permit(:sign_up, keys: [:name,:address,:telephone,:open])
-      devise_parameter_sanitizer.permit(:account_update, keys: [:name,:address,:telephone,:open])
+      devise_parameter_sanitizer.permit(:sign_up, keys: [:name,:address,:telephone])
+      devise_parameter_sanitizer.permit(:account_update, keys: [:name,:address,:telephone])
     elsif resource_class == User
       devise_parameter_sanitizer.permit(:sign_up, keys: [:name,:lastname,:username,:mobile,:remaining_days,:birthday,:avatar,:objective,:gender])
       devise_parameter_sanitizer.permit(:account_update, keys: [:name,:lastname,:mobile,:remaining_days,:birthday,:avatar,:objective,:gender])
     elsif resource_class == Trainer
       devise_parameter_sanitizer.permit(:sign_up, keys: [:name,:lastname,:username,:speciality,:type_trainer,:birthday,:mobile,:avatar])
       devise_parameter_sanitizer.permit(:account_update, keys: [:name,:lastname,:speciality,:type_trainer,:birthday,:mobile,:avatar])
+    elsif resource_class == Admin
+      devise_parameter_sanitizer.permit(:sign_up, keys: [:name,:username])
+      devise_parameter_sanitizer.permit(:account_update, keys: [:name])
     end
   end
 

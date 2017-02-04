@@ -22,7 +22,7 @@ class Trainer < ActiveRecord::Base
     self.birthday = attribute.has_key?(:birthday) ? attribute[:birthday] : self.birthday
     self.mobile = attribute.has_key?(:mobile) ? attribute[:mobile] : self.mobile
     self.avatar = attribute.has_key?(:avatar) ? attribute[:avatar] : self.avatar
-    self.speciality = attribute.has_key?(:speciality) ? attribute[:speciality] : self.speciality
+    self.speciality = attribute.has_key?(:speciality) ? attribute[:speciality].split(",") : self.speciality
   end
 
   def set_token
@@ -46,10 +46,11 @@ class Trainer < ActiveRecord::Base
   has_many :n_users, through: :nutrition_routines, source: :user
   has_many :workouts, -> {reorder("workouts.start_date  ASC")}, dependent: :nullify
   has_many :w_users, through: :workouts, source: :user
+  has_many :exercises, -> {reorder("exercises.name ASC")}, dependent: :destroy
 
 
-  validates :name,:lastname,:mobile,:email,:speciality,:type_trainer,:birthday,:username, presence: true
-  validates :name, :lastname, :speciality, length: {minimum: 3}
+  validates :name,:lastname,:mobile,:email,:type_trainer,:birthday,:username, presence: true
+  validates :name, :lastname, length: {minimum: 3}
   validates :username,:email, uniqueness: true
   validates :username, length: {minimum: 5}
   validates :type_trainer, inclusion: {in: type_trainers.keys}
@@ -57,6 +58,7 @@ class Trainer < ActiveRecord::Base
   validates_integrity_of :avatar
   validates_processing_of :avatar
   validates :avatar, file_size: { less_than_or_equal_to: 1.megabyte }
+  validate :validate_speciality
 
   def self.load_trainers(page = 1, per_page = 10)
     includes(:qualifications,challanges: [:user],measurements: [:user],workouts: [:user])
@@ -108,6 +110,11 @@ class Trainer < ActiveRecord::Base
       .where(trainers:{birthday: Trainer.new.set_range(type,year,month)})
   end
 
+  def self.trainers_by_speciality(speciality,page = 1, per_page = 10)
+    load_trainers(page,per_page)
+    .where("\'#{speciality}\' = ANY (speciality)")
+  end
+
   def self.trainers_with_qualifications(page = 1, per_page = 10)
     joins(:qualifications)
       .group("trainers.id")
@@ -141,6 +148,13 @@ class Trainer < ActiveRecord::Base
       .group("trainers.id")
       .paginate(:page => page, :per_page => per_page)
       .reorder("count(workouts.id)")
+  end
+
+  protected
+  def validate_speciality
+    speciality.each do |value|
+      errors.add(:speciality,"is not include in the list") unless ["TRX", "crossfit"].include?(value)
+    end
   end
 
 end

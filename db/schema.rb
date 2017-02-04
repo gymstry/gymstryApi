@@ -10,10 +10,41 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170125172739) do
+ActiveRecord::Schema.define(version: 20170204032706) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "admins", force: :cascade do |t|
+    t.string   "provider",               default: "email", null: false
+    t.string   "uid",                    default: "",      null: false
+    t.string   "encrypted_password",     default: "",      null: false
+    t.string   "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.integer  "sign_in_count",          default: 0,       null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.string   "current_sign_in_ip"
+    t.string   "last_sign_in_ip"
+    t.string   "confirmation_token"
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
+    t.string   "unconfirmed_email"
+    t.integer  "failed_attempts",        default: 0,       null: false
+    t.string   "unlock_token"
+    t.datetime "locked_at"
+    t.string   "name"
+    t.string   "username"
+    t.string   "email"
+    t.json     "tokens"
+    t.datetime "created_at",                               null: false
+    t.datetime "updated_at",                               null: false
+    t.index ["confirmation_token"], name: "index_admins_on_confirmation_token", unique: true, using: :btree
+    t.index ["email"], name: "index_admins_on_email", unique: true, using: :btree
+    t.index ["reset_password_token"], name: "index_admins_on_reset_password_token", unique: true, using: :btree
+    t.index ["uid", "provider"], name: "index_admins_on_uid_and_provider", unique: true, using: :btree
+  end
 
   create_table "branches", force: :cascade do |t|
     t.string   "provider",               default: "email", null: false
@@ -38,7 +69,6 @@ ActiveRecord::Schema.define(version: 20170125172739) do
     t.string   "email"
     t.string   "address"
     t.string   "telephone"
-    t.string   "open"
     t.integer  "gym_id"
     t.json     "tokens"
     t.datetime "created_at",                               null: false
@@ -79,6 +109,7 @@ ActiveRecord::Schema.define(version: 20170125172739) do
   create_table "events", force: :cascade do |t|
     t.string   "name",                        null: false
     t.text     "description", default: ""
+    t.string   "otro_name",   default: "",    null: false
     t.date     "class_date"
     t.decimal  "duration",    default: "1.0", null: false
     t.integer  "type_event"
@@ -91,16 +122,20 @@ ActiveRecord::Schema.define(version: 20170125172739) do
   end
 
   create_table "exercises", force: :cascade do |t|
-    t.string   "name",                      null: false
+    t.string   "name",                           null: false
     t.text     "description",  default: ""
     t.text     "problems",     default: ""
     t.string   "benefits",     default: ""
     t.integer  "muscle_group"
-    t.text     "elements",     default: [],              array: true
-    t.integer  "level"
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+    t.text     "elements",     default: [],                   array: true
+    t.string   "owner",        default: "admin", null: false
+    t.integer  "trainer_id"
+    t.integer  "level",        default: 0
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
     t.index ["name"], name: "index_exercises_on_name", using: :btree
+    t.index ["owner"], name: "index_exercises_on_owner", using: :btree
+    t.index ["trainer_id"], name: "index_exercises_on_trainer_id", using: :btree
   end
 
   create_table "food_day_per_foods", force: :cascade do |t|
@@ -158,7 +193,7 @@ ActiveRecord::Schema.define(version: 20170125172739) do
     t.string   "address"
     t.string   "telephone"
     t.string   "email"
-    t.text     "speciality"
+    t.string   "speciality",             default: [],                   array: true
     t.date     "birthday"
     t.json     "tokens"
     t.datetime "created_at",                               null: false
@@ -232,6 +267,17 @@ ActiveRecord::Schema.define(version: 20170125172739) do
     t.index ["user_id"], name: "index_nutrition_routines_on_user_id", using: :btree
   end
 
+  create_table "offers", force: :cascade do |t|
+    t.string   "name",        null: false
+    t.date     "start_day",   null: false
+    t.date     "end_day",     null: false
+    t.text     "description"
+    t.integer  "gym_id"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.index ["gym_id"], name: "index_offers_on_gym_id", using: :btree
+  end
+
   create_table "prohibited_exercises", force: :cascade do |t|
     t.integer  "exercise_id"
     t.integer  "medical_record_id"
@@ -250,6 +296,30 @@ ActiveRecord::Schema.define(version: 20170125172739) do
     t.datetime "updated_at",                 null: false
     t.index ["name"], name: "index_qualifications_on_name", using: :btree
     t.index ["trainer_id"], name: "index_qualifications_on_trainer_id", using: :btree
+  end
+
+  create_table "routines", force: :cascade do |t|
+    t.integer  "series",      default: 4
+    t.integer  "repetition",  default: 12
+    t.decimal  "time",        default: "0.0"
+    t.decimal  "rest",        default: "5.0"
+    t.integer  "level"
+    t.integer  "exercise_id"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.index ["exercise_id"], name: "index_routines_on_exercise_id", using: :btree
+  end
+
+  create_table "timetables", force: :cascade do |t|
+    t.date     "day",                        null: false
+    t.string   "open_hour",                  null: false
+    t.string   "close_hour",                 null: false
+    t.boolean  "repeat",     default: true
+    t.boolean  "closed",     default: false
+    t.integer  "branch_id"
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+    t.index ["branch_id"], name: "index_timetables_on_branch_id", using: :btree
   end
 
   create_table "trainers", force: :cascade do |t|
@@ -275,7 +345,7 @@ ActiveRecord::Schema.define(version: 20170125172739) do
     t.string   "lastname"
     t.string   "mobile"
     t.string   "email"
-    t.text     "speciality"
+    t.string   "speciality",             default: [],                   array: true
     t.integer  "type_trainer"
     t.text     "avatar"
     t.date     "birthday"
@@ -337,24 +407,21 @@ ActiveRecord::Schema.define(version: 20170125172739) do
 
   create_table "workout_per_day_per_exercises", force: :cascade do |t|
     t.integer  "workout_per_day_id"
-    t.integer  "exercise_id"
+    t.integer  "routines_id"
     t.datetime "created_at",         null: false
     t.datetime "updated_at",         null: false
-    t.index ["exercise_id"], name: "index_workout_per_day_per_exercises_on_exercise_id", using: :btree
+    t.index ["routines_id"], name: "index_workout_per_day_per_exercises_on_routines_id", using: :btree
     t.index ["workout_per_day_id"], name: "index_workout_per_day_per_exercises_on_workout_per_day_id", using: :btree
   end
 
   create_table "workout_per_days", force: :cascade do |t|
-    t.string   "name",                        null: false
+    t.string   "name",                     null: false
     t.text     "description", default: ""
     t.text     "benefits",    default: ""
-    t.integer  "series",      default: 4
-    t.integer  "repetition",  default: 12
-    t.decimal  "time",        default: "0.0"
-    t.decimal  "rest",        default: "5.0"
+    t.integer  "level"
     t.integer  "workout_id"
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
     t.index ["name"], name: "index_workout_per_days_on_name", using: :btree
     t.index ["workout_id"], name: "index_workout_per_days_on_workout_id", using: :btree
   end
@@ -380,6 +447,7 @@ ActiveRecord::Schema.define(version: 20170125172739) do
   add_foreign_key "challanges", "trainers"
   add_foreign_key "challanges", "users"
   add_foreign_key "events", "branches"
+  add_foreign_key "exercises", "trainers"
   add_foreign_key "food_day_per_foods", "food_days"
   add_foreign_key "food_day_per_foods", "foods"
   add_foreign_key "food_days", "nutrition_routines"
@@ -390,10 +458,13 @@ ActiveRecord::Schema.define(version: 20170125172739) do
   add_foreign_key "medical_records", "users"
   add_foreign_key "nutrition_routines", "trainers"
   add_foreign_key "nutrition_routines", "users"
+  add_foreign_key "offers", "gyms"
   add_foreign_key "prohibited_exercises", "exercises"
   add_foreign_key "prohibited_exercises", "medical_records"
   add_foreign_key "qualifications", "trainers"
-  add_foreign_key "workout_per_day_per_exercises", "exercises"
+  add_foreign_key "routines", "exercises"
+  add_foreign_key "timetables", "branches"
+  add_foreign_key "workout_per_day_per_exercises", "routines", column: "routines_id"
   add_foreign_key "workout_per_day_per_exercises", "workout_per_days"
   add_foreign_key "workout_per_days", "workouts"
   add_foreign_key "workouts", "trainers"

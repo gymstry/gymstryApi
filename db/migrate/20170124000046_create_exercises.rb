@@ -7,10 +7,13 @@ class CreateExercises < ActiveRecord::Migration[5.0]
       t.string :benefits, :default => ""
       t.integer :muscle_group
       t.text :elements, array: true, default: []
-      t.integer :level
+      t.string :owner, :null => false, :default => "admin"
+      t.references :trainer, foreign_key: true
+      t.integer :level, :default => 0
       t.timestamps
     end
     add_index :exercises, :name
+    add_index :exercises, :owner
 
   end
 end
