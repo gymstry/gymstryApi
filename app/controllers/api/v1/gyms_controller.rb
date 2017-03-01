@@ -1,7 +1,8 @@
 class Api::V1::GymsController < ApplicationController
   include ControllerUtility
-  before_action :set_gym, only: [:show]
-  before_action only: [:index,:gyms_by_name,:gyms_by_ids,:gyms_by_not_ids,:gyms_with_branches,:gyms_with_pictures] do
+  before_action :authenticate_admin! only: [:destroy]
+  before_action :set_gym, only: [:show,:destroy]
+  before_action only: [:index,:gyms_by_name,:gyms_by_ids,:gyms_by_not_ids,:gyms_with_branches,:gyms_with_pictures,:gyms_by_speciality] do
     set_pagination(params)
   end
 
@@ -12,8 +13,17 @@ class Api::V1::GymsController < ApplicationController
   def show
     if @gym
       if stale?(@gym,public: true)
-        render json: @gym,status: :ok
+        render json: @gym,status: :ok,:location => api_v1_gym(@gym)
       end
+    else
+      record_not_found
+    end
+  end
+
+  def destroy
+    if @gym
+      @gym.destroy
+      head :no_content
     else
       record_not_found
     end
@@ -32,51 +42,35 @@ class Api::V1::GymsController < ApplicationController
 
   def gyms_by_name
     @gyms = Gym.gyms_by_name(params[:name] || "", @page,@per_page)
-    if @gyms
-      render json: @gyms, status: :ok
-    else
-      record_error
-    end
+    render json: @gyms, status: :ok
   end
 
   def gyms_by_ids
     ids = set_ids
     @gyms = Gym.gyms_by_ids(ids,@page,@per_page)
-    if @gyms
-      render json: @gyms, status: :ok
-    else
-      record_error
-    end
+    render json: @gyms, status: :ok
   end
 
   def gyms_by_not_ids
     ids = set_ids
     @gyms = Gym.gyms_by_not_ids(ids,@page,@per_page)
-    if @gyms
-      render json: @gyms, status: :ok
-    else
-      record_error
-    end
+    render json: @gyms, status: :ok
   end
 
   def gyms_with_branches
     @gyms = Gym.gyms_with_branches(@page,@per_page)
-    if @gyms
-      render json: @gyms,status: :ok
-    else
-      record_error
-    end
+    render json: @gyms,status: :ok
   end
 
-  def gymms_with_pictures
-    @gyns = Gym.gyms_with_pictures(@page,@per_page)
-    if @gyms
-      render json: @gyms, status: :ok
-    else
-      record_error
-    end
+  def gyms_with_pictures
+    @gyms = Gym.gyms_with_pictures(@page,@per_page)
+    render json: @gyms, status: :ok
   end
 
+  def gyms_by_speciality
+    @gyms = Gym.gyms_by_speciality(params[:speciality] || "", @page,@per_page)
+    render json: @gyms,status: :ok
+  end
   private
     def set_gym
       @gym = Gym.gym_by_id(params[:id])

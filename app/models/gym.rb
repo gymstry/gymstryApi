@@ -51,17 +51,16 @@ class Gym < ActiveRecord::Base
   def self.gyms_by_ids(ids,page = 1, per_page = 10)
     load_gyms(page,per_page)
       .where(gyms:{id: ids})
-      .paginate(:page =>  page, :per_page => per_page)
   end
 
   def self.gyms_by_not_ids(ids, page = 1, per_page = 10)
     load_gyms(page,per_page)
       .where.not(gyms:{id: ids})
-      .paginate(:page => page, :per_page => per_page)
   end
 
   def self.gyms_with_branches(page = 1, per_page = 10)
     joins(:branches).select("gyms.*")
+      .select("COUNT(branches.id) AS count_branches")
       .group("gyms.id")
       .paginate(:page => page, :per_page =>per_page)
       .reorder("count(branches.id)")
@@ -69,6 +68,7 @@ class Gym < ActiveRecord::Base
 
   def self.gyms_with_pictures(page = 1, per_page = 10)
     joins(:images).select("gyms.*")
+      .select("COUNT(images.id) AS count_images")
       .group("gyms.id")
       .paginate(:page => page, :per_page =>per_page)
       .reorder("count(images.id)")

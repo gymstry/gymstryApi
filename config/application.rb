@@ -31,7 +31,7 @@ module Gymstry
         origins '*'
         resource '*',
           :headers => :any,
-          :expose => ['access-token', 'expiry', 'token-type', 'uid', 'client'],
+          :expose => :any,
           :methods => [:get,:post,:options,:delete,:put,:patch,:head]
       end
     end

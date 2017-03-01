@@ -1,7 +1,8 @@
 class Api::V1::BranchesController < ApplicationController
   include ControllerUtility
-  before_action :authenticate_gym, only: [:destroy]
-  before_action only: [:index,:branches_by_name,:branches_by_ids,:branches_by_not_ids,:branches_with_events_range,:branches_with_users,:branches_with_events,:branches_with_trainers] do
+  devise_token_auth_group :member, contains: [:gym,:admin]
+  before_action :authenticate_member!, only: [:destroy]
+  before_action only: [:index,:branches_by_name,:branches_by_ids,:branches_by_not_ids,:branches_with_events_range,:branches_with_users,:branches_with_events,:branches_with_trainers,:branches_with_timetables] do
     set_pagination(params)
   end
   before_action :set_branch, only: [:show,:destroy]
@@ -19,7 +20,7 @@ class Api::V1::BranchesController < ApplicationController
   def show
     if @branch
       if stale?(@branch,public: true)
-        render json: @branch, status: :ok
+        render json: @branch, status: :ok, :location => api_v1_branch(@branch)
       end
     else
       record_not_found
@@ -28,7 +29,10 @@ class Api::V1::BranchesController < ApplicationController
 
   def destroy
     if @branch
-      if @brach.gym.id == current_gym.id
+      if current_member.is_a?(:Admin)
+        @branch.destroy
+        head :no_content
+      elsif @brach.gym.id == current_member.id
         @branch.destroy
         head :no_content
       else
@@ -72,48 +76,53 @@ class Api::V1::BranchesController < ApplicationController
   def branches_by_ids
     ids =  set_ids
     @branches = Branch.branches_by_ids(ids,@page,@per_page)
-    if @branches
-      render json: @branches,status: :ok
-    else
-      record_error
-    end
+    render json: @branches,status: :ok
   end
 
   def branches_by_not_ids
     ids = set_ids
     @branches = Branch.branches_by_not_ids(ids,@page,@per_page)
-    if @branches
-      render json: @branches,status: :ok
-    else
-      record_error
-    end
+    render json: @branches,status: :ok
   end
 
   def branches_with_events
-    @brances = Branch.branches_with_events(@page,@per_page)
-    if @brances
-      render json: @branches, status: :ok
+    if params.has_key?(:gym_id)
+      @brances = Branch.branches_with_events(@page,@per_page)
+        .search_by_gym_id(params[:gym_id])
     else
-      record_error
+      @brances = Branch.branches_with_events(@page,@per_page)
     end
+    render json: @branches, status: :ok
   end
 
   def branches_with_trainers
-    @branches = Branch.branches_with_trainers(@page,@per_page)
-    if @branches
-      render json: @branches,status: :ok
+    if params.has_key?(:gym_id)
+      @branches = Branch.branches_with_trainers(@page,@per_page)
+        .search_by_gym_id(params[:gym_id])
     else
-      record_error
+      @branches = Branch.branches_with_trainers(@page,@per_page)
     end
+    render json: @branches,status: :ok
   end
 
   def branches_with_users
-    @branches = Branch.branches_with_users(@page,@per_page)
-    if @branches
-      render json: @branches,status: :ok
+    if params.has_key?(:gym_id)
+      @branches = Branch.branches_with_users(@page,@per_page)
+        .search_by_gym_id(params[:gym_id])
     else
-      record_error
+      @branches = Branch.branches_with_users(@page,@per_page)
     end
+    render json: @branches,status: :ok
+  end
+
+  def branches_with_timetables
+    if params.has_key?(:gym_id)
+      @branches = Branch.branches_with_timetables(@page,@per_page)
+        .search_by_gym_id(params[:gym_id])
+    else
+      @branches = Branch.branches_with_timetables(@page,@per_page)
+    end
+    render json: @branches,status: :ok
   end
 
   def branches_with_events_range
@@ -123,11 +132,7 @@ class Api::V1::BranchesController < ApplicationController
     else
       @branches = Branch.brances_with_events_by_range(params[:type] || "today",@page. @per_page,params[:year] || 2017, params[:month] || 1)
     end
-    if @branches
-      render json: @branches,status: :ok
-    else
-      record_error
-    end
+    render json: @branches,status: :ok
   end
 
   private

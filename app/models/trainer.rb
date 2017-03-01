@@ -15,6 +15,7 @@ class Trainer < ActiveRecord::Base
   scope :order_by_birthday, -> (ord) {order("trainers.birthday #{ord}")}
   scope :order_by_type_trainer, -> (ord) {order("trainers.type_trainer #{ord}")}
   scope :order_by_created_at, -> (ord) {order("trainers.created_at #{ord}")}
+  scope :search_by_branch_id, -> (id) {where(trainers:{branch_id: id})}
 
   def set_attributes(attribute)
     self.name = attribute.has_key?(:name) ? attribute[:name] : self.name
@@ -116,35 +117,40 @@ class Trainer < ActiveRecord::Base
   end
 
   def self.trainers_with_qualifications(page = 1, per_page = 10)
-    joins(:qualifications)
+    joins(:qualifications).select("trainers.*")
+      .select("COUNT(qualifications.id) AS count_qualifications")
       .group("trainers.id")
       .paginate(:page => page, :per_page => per_page)
       .reorder("count(qualifications.id)")
   end
 
   def self.trainers_with_challanges(page = 1, per_page = 10)
-    joins(:challanges)
+    joins(:challanges).select("trainers.*")
+      .select("COUNT(challanges.id) AS count_challenges")
       .group("trainers.id")
       .paginate(:page => page,:per_page => per_page)
       .reorder("count(challanges.id)")
   end
 
   def self.trainers_with_measurements(page = 1, per_page = 10)
-    joins(:measurements)
+    joins(:measurements).select("trainers.*")
+      .select("COUNT(measurements.id) AS count_measurements")
       .group("trainers.id")
       .paginate(:page => page,:per_page => per_page)
       .reorder("count(measurements.id)")
   end
 
   def self.trainers_with_nutrition_routines(page = 1, per_page = 10)
-    joins(:nutrition_routines)
+    joins(:nutrition_routines).select("trainers.*")
+      .select("COUNT(nutrition_routines.id) AS count_nutrition_routines")
       .group("trainers.id")
       .paginate(:page => page,:per_page => per_page)
       .reorder("count(nutrition_routines.id)")
   end
 
   def self.trainers_with_workouts(page = 1, per_page = 10)
-    joins(:workouts)
+    joins(:workouts).select("trainers.*")
+      .select("COUNT(workouts.id) AS count_workouts")
       .group("trainers.id")
       .paginate(:page => page, :per_page => per_page)
       .reorder("count(workouts.id)")

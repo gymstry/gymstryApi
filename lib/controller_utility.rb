@@ -19,14 +19,22 @@ module ControllerUtility
     render json: { data: {
         status: "Error"
       }
-
     }, status: :internal_server_error
+  end
+
+  def destroy_not_allowed
+    render json: {
+      data: {
+        status: "Error",
+        error: "You can't destroy this record"
+      }
+    }, status: :unauthorized
   end
 
   def operation_not_allowed
     render json: { data: {
         status: "Error",
-        error: "You are not the owner of this branch"
+        error: "You are not the owner of this branch or gym"
       }
     }, status: :unauthorized
   end
