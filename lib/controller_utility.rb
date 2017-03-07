@@ -39,4 +39,12 @@ module ControllerUtility
     }, status: :unauthorized
   end
 
+  def record_errors(record)
+    render json: {data: {
+        status: "Error",
+        errors: record.errors.to_hash.merge(full_messages: record.errors.full_messages)
+      }
+    }, status: :unprocessable_entity
+  end
+
 end

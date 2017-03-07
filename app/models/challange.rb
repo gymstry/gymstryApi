@@ -1,4 +1,5 @@
 class Challange < ApplicationRecord
+  include Utility
   before_create :set_state
 
   default_scope {order("challanges.name ASC")}
@@ -49,49 +50,87 @@ class Challange < ApplicationRecord
       .find_by_id(id)
   end
 
-  def self.challange_by_name(name,page = 1,per_page = 10)
+  def self.challanges_by_type(type, page = 1,per_page = 10)
+    query = load_challanges(page,per_page)
+    case type.downcase
+    when "weight"
+      query = query.weight
+    when "eat_carbohydrates"
+      query = query.eat_carbohydrates
+    when "eat_proteins"
+      query = query.eat_proteins
+    when "eat_fats"
+      query = query.eat_fats
+    when "hip"
+      query = query.hip
+    when "chest"
+      query = query.chest
+    when "body_fat_percentage"
+      query = query.body_fat_percentage
+    when "waist"
+      query = query.waist
+    else
+      query = query.weight
+    end
+  end
+
+  def challanges_by_state(state,page = 1, per_page = 10)
+    query = load_challanges(page,per_page)
+    case state.downcase
+    when "progress"
+      query = query.progress
+    when "passed"
+      query = query.passed
+    when "failed"
+      query = query.failed
+    else
+      query = query.passed
+    end
+  end
+
+  def self.challanges_by_name(name,page = 1,per_page = 10)
     load_challanges(page,per_page)
       .where("challanges.name LIKE ?", "#{name.downcase}%")
   end
 
-  def self.challanges_by_start_date(date, page = 1, per_page = 10)
+  def self.challanges_by_start_date(type, page = 1, per_page = 10, year,month)
     load_challanges(page,per_page)
-      .where(challanges: {start_date: date})
+      .where(challanges: {start_date: Challange.new.set_range(type,year,month)})
   end
 
-  def self.challanges_by_start_date_and_trainer(date,trainer,page = 1 ,per_page = 10)
-    challanges_by_start_date(date,page,per_page)
+  def self.challanges_by_start_date_and_trainer(type,trainer,page = 1 ,per_page = 10,year,month)
+    challanges_by_start_date(type,page,per_page,year,month)
       .search_by_trainer_id(trainer)
   end
 
-  def self.challanges_by_start_date_and_user(date,user, page = 1, per_page = 10)
-    challanges_by_start_date(date,page,per_page)
+  def self.challanges_by_start_date_and_user(type,user, page = 1, per_page = 10,year,month)
+    challanges_by_start_date(type,page,per_page,year,month)
       .search_by_user_id(user)
   end
 
-  def self.challanges_by_start_date_and_user_and_trainer(date,user,trainer,page = 1, per_page = 10)
-    challanges_by_start_date(date,page,per_page)
+  def self.challanges_by_start_date_and_user_and_trainer(type,user,trainer,page = 1, per_page = 10,year,month)
+    challanges_by_start_date(type,page,per_page,year,month)
       .search_by_user_id(user)
       .search_by_trainer_id(trainer)
   end
 
-  def self.challanges_by_end_date(date, page = 1, per_page = 10)
+  def self.challanges_by_end_date(type, page = 1, per_page = 10,year,month)
     load_challanges(page,per_page)
-      .where(challanges: {end_date: date})
+      .where(challanges: {end_date: Challange.new.set_range(type,year,month)})
   end
 
-  def self.challanges_by_end_date_and_trainer(date, trainer, page = 1, per_page = 10)
-    challanges_by_end_date(date,page,per_page)
+  def self.challanges_by_end_date_and_trainer(type, trainer, page = 1, per_page = 10,year,month)
+    challanges_by_end_date(type,page,per_page,year,month)
       .search_by_trainer_id(trainer)
   end
 
-  def self.challanges_by_end_date_and_user(date, user, page = 1 ,per_page = 10)
-    challanges_by_end_date(date,page,per_page)
+  def self.challanges_by_end_date_and_user(type, user, page = 1 ,per_page = 10,year,month)
+    challanges_by_end_date(type,page,per_page,year,month)
       .search_by_user_id(user)
   end
 
-  def self.challanges_by_end_date_and_user_and_trainer(date,user,trainer,page = 1, per_page = 10)
-    challanges_by_end_date(date,page,per_page)
+  def self.challanges_by_end_date_and_user_and_trainer(type,user,trainer,page = 1, per_page = 10,year,month)
+    challanges_by_end_date(type,page,per_page,year,month)
       .search_by_user_id(user)
       .search_by_trainer_id(trainer)
   end

@@ -62,12 +62,12 @@ class Trainer < ActiveRecord::Base
   validate :validate_speciality
 
   def self.load_trainers(page = 1, per_page = 10)
-    includes(:qualifications,challanges: [:user],measurements: [:user],workouts: [:user])
+    includes(:exercises,:qualifications,challanges: [:user],measurements: [:user],workouts: [:user])
       .paginate(:page => page, :per_page => per_page)
   end
 
   def self.trainer_by_id(id)
-    includes(:qualifications,challanges: [:user],measurements: [:user],workouts: [:user])
+    includes(:exercises,:qualifications,challanges: [:user],measurements: [:user],workouts: [:user])
       .find_by_id(id)
   end
 
@@ -82,12 +82,12 @@ class Trainer < ActiveRecord::Base
   end
 
   def self.trainer_by_username(username)
-    includes(:qualifications,challanges: [:user],measurements: [:user],workouts: [:user])
+    includes(:exercises,:qualifications,challanges: [:user],measurements: [:user],workouts: [:user])
       .find_by_username(username)
   end
 
   def self.trainer_by_email(email)
-    includes(:qualifications,challanges: [:user],measurements: [:user],workouts: [:user])
+    includes(:exercises,:qualifications,challanges: [:user],measurements: [:user],workouts: [:user])
       .find_by_email(email)
   end
 

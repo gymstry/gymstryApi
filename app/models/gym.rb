@@ -3,7 +3,7 @@ class Gym < ActiveRecord::Base
   devise :database_authenticatable, :registerable,
           :recoverable, :rememberable, :trackable, :validatable,
           :confirmable
-  include DeviseTokenAuth::Concerns::User
+  include DeviseTokenAuth::Concerns::User,Utility
 
   default_scope {order("gyms.name ASC")}
   scope :order_by_id, -> (ord) {order("gyms.id #{ord}")}
@@ -72,6 +72,23 @@ class Gym < ActiveRecord::Base
       .group("gyms.id")
       .paginate(:page => page, :per_page =>per_page)
       .reorder("count(images.id)")
+  end
+
+  def self.gyms_with_offers(page = 1, per_page = 10)
+    joins(:offers).select("gyms.*")
+      .select("COUNT(offers.id) AS count_offers")
+      .group("gyms.id")
+      .paginate(:page => page,:per_page => per_page)
+      .reorder("count(offers.id)")
+  end
+
+  def self.gyms_with_offers_and_date(type,page = 1 ,per_page = 10,year = 2017,month = 1)
+    joins(:offers).select("gyms.*")
+      .where(offers: {
+        end_day: Gym.new.set_range(type,year,month)
+      })
+      .group("gyms.id")
+      .paginate(:page => page,:per_page => per_page)
   end
 
   protected

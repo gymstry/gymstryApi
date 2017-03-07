@@ -14,6 +14,18 @@ Rails.application.routes.draw do
       controller :facebook do
         post 'login-facebook', to: "facebook#login_facebook"
       end
+      resources :users, only: [] do
+        resources :diseases, only: [] do
+          collection do
+            get 'diseases-by-user', to: "diseases#diseases_by_user"
+          end
+        end
+        resources :trainers, only: []  do
+          match 'challenges-by-start-date', to: "challanges#challanges_by_start_date", via: [:get]
+          match 'challenges-by-end_date', to: "challanges#challanges_by_end_date", via: [:get]
+          match 'challenges', to: "challanges#challanges", via: [:get]
+        end
+      end
       resources :gyms, only: [:index,:show,:destroy] do
         collection do
           get 'gym-by-email', to: "gyms#gym_by_email"
@@ -22,7 +34,9 @@ Rails.application.routes.draw do
           get 'gyms-by-not-ids', to: "gyms#gyms_by_not_ids"
           get 'gyms-with-branches', to: "gyms#gyms_with_branches"
           get 'gyms-with-pictures', to: "gyms#gyms_with_pictures"
+          get 'gyms-with-offers', to: "gyms#gyms_with_offers"
           get 'gyms-by-speciality', to: "gyms#gyms_by_speciality"
+          get 'gyms-with-offers-and-date', to: "gyms#gyms_with_offers_and_date"
         end
         resources :branches, only: [:index] do
           collection do
@@ -51,16 +65,19 @@ Rails.application.routes.draw do
           end
         end
         resources :users, only: [:index] do
-          get 'male', to: "users#users_male"
-          get 'female', to: "users#users_female"
-          get 'users-by-name', to: "users#users_by_name"
-          get 'users-by-lastname', to: "users#users_by_lastname"
-          get 'users-by-username-or-email', to: "users#users_by_username_or_email"
-          get 'users-by-birthday', to: "users#users_by_birthday"
-          get 'users-with-challenges', to: "users#users_with_challenges"
-          get 'users-with-measurements', to: "users#users_with_measurements"
-          get 'users-with-nutrition-routines', to: "users#users_with_nutrition_routines"
-          get 'users-with-workouts', to: "users#users_with_workouts"
+          collection do
+            get 'male', to: "users#users_male"
+            get 'female', to: "users#users_female"
+            get 'users-by-name', to: "users#users_by_name"
+            get 'users-by-lastname', to: "users#users_by_lastname"
+            get 'users-by-username-or-email', to: "users#users_by_username_or_email"
+            get 'users-by-birthday', to: "users#users_by_birthday"
+            get 'users-with-challenges', to: "users#users_with_challenges"
+            get 'users-with-measurements', to: "users#users_with_measurements"
+            get 'users-with-nutrition-routines', to: "users#users_with_nutrition_routines"
+            get 'users-with-workouts', to: "users#users_with_workouts"
+          end
+
         end
         collection do
           get 'branch-by-email', to: "branches#branch_by_email"
@@ -74,6 +91,15 @@ Rails.application.routes.draw do
         end
       end
       resources :trainers, only: [:index,:show,:destroy] do
+        resources :challanges, only: [:index] do
+          collection do
+            get 'challenges-by-type', to: "challanges#challanges_by_type"
+            get 'challenges-by-state', to: "challanges#challanges_by_state"
+            get 'challenges-by-start-date',to: "challanges#challanges_by_start_date"
+            get 'challenges-by-end-date', to: "challanges#challanges_by_end_date"
+            get 'challenges', to: "challanges#challanges"
+          end
+        end
         collection do
           get 'trainers-by-ids', to: "trainers#trainers_by_ids"
           get 'trainers-by-not-ids', to: "trainers#trainers_by_not_ids"
@@ -92,6 +118,15 @@ Rails.application.routes.draw do
         end
       end
       resources :users, only: [:index,:show,:destroy] do
+        resources :challanges, only: [:index,:create] do
+          collection do
+            get 'challenges-by-type', to: "challanges#challanges_by_type"
+            get 'challenges-by-state', to: "challanges#challanges_by_state"
+            get 'challenges-by-start-date',to: "challanges#challanges_by_start_date"
+            get 'challenges-by-end-date', to: "challanges#challanges_by_end_date"
+            get 'challenges', to: "challanges#challanges"
+          end
+        end
         collection do
           get 'male', to: "users#users_male"
           get 'female', to: "users#users_female"
@@ -109,6 +144,34 @@ Rails.application.routes.draw do
           get 'users-with-workouts', to: "users#users_with_workouts"
         end
       end
+      resources :challanges, only: [:index,:show,:destroy,:update] do
+        collection do
+          get 'challenges-by-ids', to: "challanges#challanges_by_ids"
+          get 'challenges-by-not-ids', to: "challanges#challanges_by_not_ids"
+          get 'challenges-by-name', to: "challanges#challanges_by_name"
+          get 'challenges-by-type', to: "challanges#challanges_by_type"
+          get 'challenges-by-state', to: "challanges#challanges_by_state"
+          get 'challenges-by-start-date',to: "challanges#challanges_by_start_date"
+          get 'challenges-by-end-date', to: "challanges#challanges_by_end_date"
+        end
+      end
+      resources :diseases do
+        collection do
+          get 'diseases-by-name', to: "diseases#diseases_by_name"
+          get 'diseases-by-ids', to: "diseases#diseases_by_ids"
+          get 'diseases_by_not_ids', to: "diseases#diseases_by_not_ids"
+          get 'diseases-with-medical-records', to: "diseases#diseases_with_medical_records"
+        end
+      end
+
+      resources :medical_records, only: [] do
+        resources :disesases, only: [] do
+          collection do
+            get 'diseases-with-medical-records-by-id', to: "diseases#diseases_with_medical_records_by_id"
+          end
+        end
+      end
+
     end
   end
 
