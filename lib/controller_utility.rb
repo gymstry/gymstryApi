@@ -15,6 +15,14 @@ module ControllerUtility
     }, status: :not_found
   end
 
+  def images_needed
+    render json: { data: {
+        status: "Error",
+        error: "The image key is needed"
+      }
+    }, status: :unprocessable_entity
+  end
+
   def record_error
     render json: { data: {
         status: "Error"
@@ -34,10 +42,11 @@ module ControllerUtility
   def operation_not_allowed
     render json: { data: {
         status: "Error",
-        error: "You are not the owner of this branch or gym"
+        error: "You are not the owner of this record"
       }
     }, status: :unauthorized
   end
+
 
   def record_errors(record)
     render json: {data: {

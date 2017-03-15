@@ -17,19 +17,6 @@ class Trainer < ActiveRecord::Base
   scope :order_by_created_at, -> (ord) {order("trainers.created_at #{ord}")}
   scope :search_by_branch_id, -> (id) {where(trainers:{branch_id: id})}
 
-  def set_attributes(attribute)
-    self.name = attribute.has_key?(:name) ? attribute[:name] : self.name
-    self.lastname = attribute.has_key?(:lastname) ? attribute[:lastname] : self.lastname
-    self.birthday = attribute.has_key?(:birthday) ? attribute[:birthday] : self.birthday
-    self.mobile = attribute.has_key?(:mobile) ? attribute[:mobile] : self.mobile
-    self.avatar = attribute.has_key?(:avatar) ? attribute[:avatar] : self.avatar
-    self.speciality = attribute.has_key?(:speciality) ? attribute[:speciality].split(",") : self.speciality
-  end
-
-  def set_token
-    Trainer.new.set_token_resource(self)
-  end
-
   enum type_trainer: {
     :personal_trainer => 0,
     :gym => 1,

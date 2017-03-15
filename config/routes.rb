@@ -11,9 +11,9 @@ Rails.application.routes.draw do
           get 'admins-by-not-ids', to: "admins#admins_by_not_ids"
         end
       end
-      controller :facebook do
-        post 'login-facebook', to: "facebook#login_facebook"
-      end
+      #controller :facebook do
+      #  post 'login-facebook', to: "facebook#login_facebook"
+      #end
       resources :users, only: [] do
         resources :diseases, only: [] do
           collection do
@@ -64,6 +64,15 @@ Rails.application.routes.draw do
             get 'trainers-with-workouts', to: "trainers#trainers_with_workouts"
           end
         end
+        resources :events, only: [:index] do
+          collection do
+            get 'events-by-name', to: "events#events_by_name"
+            get 'events-by-date', to: "events#events_by_date"
+            get 'events-by-type-event-and-date', to: "events#events_by_type_event_and_date"
+            get 'events-by-type-event', to: "events#events_by_type_event"
+            get 'events-by-type-event-and-date', to: "events#events_by_type_event_and_date"
+          end
+        end
         resources :users, only: [:index] do
           collection do
             get 'male', to: "users#users_male"
@@ -90,7 +99,19 @@ Rails.application.routes.draw do
           get 'branches-with-events-date', to: "branches#branches_with_events_range"
         end
       end
+      resources :events do
+        collection do
+          get 'events-by-name', to: "events#events_by_name"
+          get 'events-by-ids', to: "events#events_by_ids"
+          get 'events-by-not-ids', to: "events#events_by_not_ids"
+          get 'events-by-date', to: "events#events_by_date"
+          get 'events-by-type-event', to: "events#events_by_type_event"
+        end
+      end
       resources :trainers, only: [:index,:show,:destroy] do
+        resources :exercises, only: [:index] do
+
+        end
         resources :challanges, only: [:index] do
           collection do
             get 'challenges-by-type', to: "challanges#challanges_by_type"
@@ -164,6 +185,12 @@ Rails.application.routes.draw do
         end
       end
 
+      resources :exercies do
+        member do
+          get 'add-images', to: "exercises#add_images"
+        end
+      end
+
       resources :medical_records, only: [] do
         resources :disesases, only: [] do
           collection do
@@ -187,8 +214,9 @@ Rails.application.routes.draw do
     registrations: 'overrides/registrations_gym_and_trainer'
   }
 
-  mount_devise_token_auth_for 'User', at: 'api/v1/auth', skip: [:omniauth_callbacks], controllers: {
-    registrations:  'overrides/registrations'
+  mount_devise_token_auth_for 'User', at: 'api/v1/auth', controllers: {
+    registrations:  'overrides/registrations',
+    omniauth_callbacks: 'overrides/omniauth_callbacks'
   }
   mount_devise_token_auth_for 'Admin', at: 'api/v1/admin_auth', skip: [:omniauth_callbacks, :confirmations]
 

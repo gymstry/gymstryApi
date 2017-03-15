@@ -13,7 +13,7 @@ class Event < ApplicationRecord
 
   #We need to talk with the gym and add more common classes
   enum type_event: {
-    :TXR => 0,
+    :TRX => 0,
     :yoga => 1,
     :force => 2,
     :other => 3
@@ -60,6 +60,28 @@ class Event < ApplicationRecord
   def self.events_by_date_and_branch(type,branch,page = 1 ,per_page = 10, year = 2017, month = 1)
     events_by_date(type,page,per_page,year,month)
       .search_by_branch_id(branch)
+  end
+
+  def self.events_by_type_event(type_event,page = 1,per_page = 10)
+    events = load_events(page,per_page)
+    case type_event
+    when "TRX"
+      events = events.TRX
+    when "force"
+      events = events.force
+    when "yoga"
+      events = events.yoga
+    when "other"
+      events = events.other
+    else
+      events = events.other
+    end
+    events
+  end
+
+  def self.events_by_type_event_date(type_event,type,page = 1,per_page = 10)
+    events_by_type_event(type_event,page,per_page)
+      .events_by_date(type,page,per_page)
   end
 
   protected

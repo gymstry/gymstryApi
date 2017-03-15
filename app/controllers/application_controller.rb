@@ -6,20 +6,20 @@ class ApplicationController < ActionController::API
   protected
   def configure_permitted_parameters
     if resource_class == Gym
-      devise_parameter_sanitizer.permit(:sign_up, keys: [:name,:description,:address,:telephone,:speciality,:birthday])
-      devise_parameter_sanitizer.permit(:account_update, keys: [:description,:address,:telephone,:speciality,:birthday])
+      devise_parameter_sanitizer.permit(:sign_up, keys: [:name,:description,:address,:telephone,:speciality,:birthday,:resource_class])
+      devise_parameter_sanitizer.permit(:account_update, keys: [:description,:address,:telephone,:speciality,:birthday,:resource_class])
     elsif resource_class == Branch
-      devise_parameter_sanitizer.permit(:sign_up, keys: [:name,:address,:telephone])
-      devise_parameter_sanitizer.permit(:account_update, keys: [:name,:address,:telephone])
+      devise_parameter_sanitizer.permit(:sign_up, keys: [:name,:address,:telephone,:resource_class])
+      devise_parameter_sanitizer.permit(:account_update, keys: [:name,:address,:telephone,:resource_class])
     elsif resource_class == User
-      devise_parameter_sanitizer.permit(:sign_up, keys: [:name,:lastname,:username,:mobile,:remaining_days,:birthday,:avatar,:objective,:gender])
-      devise_parameter_sanitizer.permit(:account_update, keys: [:name,:lastname,:mobile,:remaining_days,:birthday,:avatar,:objective,:gender])
+      devise_parameter_sanitizer.permit(:sign_up, keys: [:name,:lastname,:username,:mobile,:remaining_days,:birthday,:avatar,:objective,:gender,:provider,:resource_class])
+      devise_parameter_sanitizer.permit(:account_update, keys: [:name,:lastname,:mobile,:remaining_days,:birthday,:avatar,:objective,:gender,:provider,:resource_class])
     elsif resource_class == Trainer
-      devise_parameter_sanitizer.permit(:sign_up, keys: [:name,:lastname,:username,:speciality,:type_trainer,:birthday,:mobile,:avatar])
-      devise_parameter_sanitizer.permit(:account_update, keys: [:name,:lastname,:speciality,:type_trainer,:birthday,:mobile,:avatar])
+      devise_parameter_sanitizer.permit(:sign_up, keys: [:name,:lastname,:username,:speciality,:type_trainer,:birthday,:mobile,:avatar,:provider,:resource_class])
+      devise_parameter_sanitizer.permit(:account_update, keys: [:name,:lastname,:speciality,:type_trainer,:birthday,:mobile,:avatar,:provider,:resource_class])
     elsif resource_class == Admin
-      devise_parameter_sanitizer.permit(:sign_up, keys: [:name,:username])
-      devise_parameter_sanitizer.permit(:account_update, keys: [:name])
+      devise_parameter_sanitizer.permit(:sign_up, keys: [:name,:username,:resource_class])
+      devise_parameter_sanitizer.permit(:account_update, keys: [:name,:resource_class])
     end
   end
 

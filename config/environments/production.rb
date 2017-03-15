@@ -5,16 +5,16 @@ Rails.application.configure do
       Devise::Mailer.layout "mailer" # email.haml or email.erb
   end
   config.action_mailer.delivery_method = :smtp
-  config.action_mailer.default_url_options = {host: 'gymstry.herokuapp.com'}
+  config.action_mailer.default_url_options = {host: 'gymstryapi.com'}
   config.action_mailer.delivery_method = :smtp
 
   config.action_mailer.smtp_settings = {
-    :address    => 'smtp.sendgrid.net',
+    :address    => 'smtp.mandrillapp.com',
     :port       => '587',
-    :authentication => :plain,
-    :user_name      => ENV['SENDGRID_USERNAME'],
-    :password       => ENV['SENDGRID_PASSWORD'],
-    :domain         => 'heroku.com',
+    :authentication => :login,
+    :user_name      => 'gyms',
+    :password       => ENV['MANDRILL_KEY'],
+    :domain         => 'gymstryapi.com',
     :enable_starttls_auto => true
   }
   # Code is not reloaded between requests.
@@ -91,6 +91,6 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
-  Rails.application.routes.default_url_options[:host] = 'localhost:3000'
+  Rails.application.routes.default_url_options[:host] = 'gymstryapi.com'
 
 end

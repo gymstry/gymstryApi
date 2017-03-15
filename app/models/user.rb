@@ -16,20 +16,6 @@ class User < ActiveRecord::Base
   scope :order_by_remaining_days, -> (ord) {order("users.remaining_days #{ord}")}
   scope :search_by_branch_id, -> (id) {where(users:{branch_id:id})}
 
-  def set_attributes(attribute)
-    self.name = attribute.has_key?(:name) ? attribute[:name] : self.name
-    self.lastname = attribute.has_key?(:lastname) ? attribute[:lastname] : self.lastname
-    self.birthday = attribute.has_key?(:birthday) ? attribute[:birthday] : self.birthday
-    self.mobile = attribute.has_key?(:mobile) ? attribute[:mobile] : self.mobile
-    if attribute.has_key?(:avatar)
-      self.remote_avatar_url = attribute.has_key?(:avatar)
-    end
-  end
-
-  def set_token
-    User.new.set_token_resource(self)
-  end
-
   enum gender: {
     :male => 0,
     :female => 1

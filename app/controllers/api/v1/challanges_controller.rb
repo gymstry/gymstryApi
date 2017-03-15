@@ -1,6 +1,6 @@
 class Api::V1::ChallangesController < ApplicationController
   include ControllerUtility
-  devise_token_auth_group :member, contains: [:admin,:gym,:trainer]
+  devise_token_auth_group :member, contains: [:admin,:trainer]
   before_action :authenticate_member!, only: [:destroy]
   before_action :authenticate_trainer!, only: [:create,:update]
   before_action :set_challenge, only: [:show,:destroy,:update]
@@ -62,13 +62,7 @@ class Api::V1::ChallangesController < ApplicationController
         @challenge.destroy
         head :no_content
       else
-        trainer = current_member.trainers.find_by_id(@challenge.trainer_id)
-        if trainer
-          @challenge.destroy
-          head :no_content
-        else
           operation_not_allowed
-        end
       end
     else
       record_not_found

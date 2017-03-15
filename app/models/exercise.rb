@@ -4,8 +4,9 @@ class Exercise < ApplicationRecord
   scope :order_by_id, -> (ord) {order("exercises.id #{ord}")}
   scope :order_by_name, -> (ord) {order("exercises.name #{ord}")}
   scope :order_by_created_at, -> (ord) {order("exercises.created_at #{ord}")}
-  scope :order_by_level, -> (ord) {order("exercies.level #{ord}")}
-  scope :order_by_muscle_group, -> (ord) {order("exercies.muscle_group #{ord}")}
+  scope :order_by_level, -> (ord) {order("exercises.level #{ord}")}
+  scope :order_by_muscle_group, -> (ord) {order("exercises.muscle_group #{ord}")}
+  scope :search_by_trainer, -> (id) {where(exercises:{branch_id: id})}
 
   has_many :images, as: :imageable, dependent: :destroy
   has_many :prohibited_exercises, dependent: :destroy
