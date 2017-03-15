@@ -1,5 +1,5 @@
 # Change these
-server '104.131.26.241', port: 3000, roles: [:web, :app, :db], primary: true
+server '104.131.26.241', port: 22, roles: [:web, :app, :db], primary: true
 
 set :repo_url,        'git@github.com:gymstry/gymstryApi.git'
 set :application,     'gymstryApi'
