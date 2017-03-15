@@ -23,8 +23,8 @@ DeviseTokenAuth.setup do |config|
   # example, using the default '/omniauth', the github oauth2 provider will
   # redirect successful authentications to '/omniauth/github/callback'
   config.omniauth_prefix = "/omniauth"
-  config.default_confirm_success_url = "https://gymstryapi.herokuapp.com"
-  default_password_reset_url = "https://gymstryapi.herokuapp.com"
+  config.default_confirm_success_url = "gymstryapi.com"
+  default_password_reset_url = "gymstryapi.com"
 
 
 

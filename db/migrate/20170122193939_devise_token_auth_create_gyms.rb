@@ -39,7 +39,7 @@ class DeviseTokenAuthCreateGyms < ActiveRecord::Migration[5.0]
       t.string :address
       t.string :telephone
       t.string :email
-      t.text :speciality
+      t.string :speciality, array: true, default: []
       t.date :birthday
 
       ## Tokens

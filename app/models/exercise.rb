@@ -1,17 +1,18 @@
 class Exercise < ApplicationRecord
 
-  default_scope {order("exercises.name")}
+  default_scope {where(exercises:{owner: "admin"}).order("exercises.name")}
   scope :order_by_id, -> (ord) {order("exercises.id #{ord}")}
   scope :order_by_name, -> (ord) {order("exercises.name #{ord}")}
   scope :order_by_created_at, -> (ord) {order("exercises.created_at #{ord}")}
-  scope :order_by_level, -> (ord) {order("exercies.level #{ord}")}
-  scope :order_by_muscle_group, -> (ord) {order("exercies.muscle_group #{ord}")}
+  scope :order_by_level, -> (ord) {order("exercises.level #{ord}")}
+  scope :order_by_muscle_group, -> (ord) {order("exercises.muscle_group #{ord}")}
+  scope :search_by_trainer, -> (id) {where(exercises:{branch_id: id})}
 
   has_many :images, as: :imageable, dependent: :destroy
   has_many :prohibited_exercises, dependent: :destroy
-  has_many :workout_per_day_per_exercises, dependent: :destroy
   has_many :medical_records, -> {(reorder("medical_records.created_at ASC"))}, through: :prohibited_exercises
-  has_many :workout_per_days, through: :workout_per_day_per_exercises
+  has_many :routines, dependent: :destroy
+  belongs_to :trainer, optional: true
 
   #We need to add more groups
   enum muscle_group: {
@@ -32,12 +33,12 @@ class Exercise < ApplicationRecord
   validates :level, inclusion: {in: levels.keys}
 
   def self.load_exercises(page = 1, per_page = 10)
-    includes(:images,medical_records: [:user],workout_per_days: [:workout])
+    includes(:images,medical_records: [:user],routines: [:workout_per_days])
       .paginate(:page => page, :per_page => per_page)
   end
 
   def self.exercise_by_id(id)
-    includes(:images,medical_records: [:user],workout_per_days: [:workout])
+    includes(:images,medical_records: [:user],routines: [:workout_per_days])
       find_by_id(id)
   end
 
@@ -70,11 +71,11 @@ class Exercise < ApplicationRecord
       .reorder("count(prohibited_exercises.id)")
   end
 
-  def self.exercises_with_workouts_per_day(page = 1 ,per_page = 10)
-    joins(:workout_per_day_per_exercises).select("exercies.*")
+  def self.exercises_with_routines(page = 1 ,per_page = 10)
+    joins(:routines).select("exercies.*")
       .group("exercies.id")
       .paginate(:page => page, :per_page => per_page)
-      .reorder("count(workout_per_day_per_exercises.id)")
+      .reorder("count(routines.id)")
   end
 
   def self.exercises_with_medical_records_by_id(id, page = 1, per_page = 10)
@@ -83,10 +84,11 @@ class Exercise < ApplicationRecord
       .references(:prohibited_exercises)
   end
 
-  def self.exercises_with_workouts_per_day_by_id(id, page = 1, per_page = 10)
-    load_exercises(page,per_page)
-      .where(workout_per_day_per_exercises: {workout_per_day_id: id})
-      .references(:workout_per_day_per_exercises)
+  def self.routines_with_workout_per_days(page = 1,per_page = 10)
+    joins(:workout_per_day_per_exercises)
+      .group("routines.id")
+      .paginate(:page => page, :per_page => per_page)
+      .reorder("count(workout_per_day_per_exercises.id)")
   end
 
 end

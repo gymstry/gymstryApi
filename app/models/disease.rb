@@ -39,16 +39,23 @@ class Disease < ApplicationRecord
   end
 
   def self.diseases_with_medical_records(page = 1, per_page = 10)
-    joins(:medical_record_by_diseases).select('diseases.*')
+    joins(:medical_records).select('diseases.*')
       .group("diseases.id")
       .paginate(:page => page, :per_page => per_page)
-      .reorder("count(medical_record_by_diseases.id)")
+      .reorder("count(medical_records.id)")
   end
 
   def self.diseases_with_medical_records_by_id(id, page = 1, per_page = 10)
     load_diseases(page,per_page)
       .where(medical_record_by_diseases: {medical_record_id: id})
-      .references(:medical_record_by_diseases)
+  end
+
+  def self.diseases_by_user(user,page = 1, per_page = 10)
+    joins(medical_records: :user)
+      .group("diseases.id")
+      .where(users: {
+          id: user
+      }).paginate(:page => page,:per_page => per_page)
   end
 
 end

@@ -14,20 +14,7 @@ class User < ActiveRecord::Base
   scope :order_by_birthday, -> (ord) {order("users.birthday #{ord}")}
   scope :order_by_gender, -> (ord) {order("users.gender #{ord}")}
   scope :order_by_remaining_days, -> (ord) {order("users.remaining_days #{ord}")}
-
-  def set_attributes(attribute)
-    self.name = attribute.has_key?(:name) ? attribute[:name] : self.name
-    self.lastname = attribute.has_key?(:lastname) ? attribute[:lastname] : self.lastname
-    self.birthday = attribute.has_key?(:birthday) ? attribute[:birthday] : self.birthday
-    self.mobile = attribute.has_key?(:mobile) ? attribute[:mobile] : self.mobile
-    if attribute.has_key?(:avatar)
-      self.remote_avatar_url = attribute.has_key?(:avatar)
-    end
-  end
-
-  def set_token
-    User.new.set_token_resource(self)
-  end
+  scope :search_by_branch_id, -> (id) {where(users:{branch_id:id})}
 
   enum gender: {
     :male => 0,
@@ -35,7 +22,7 @@ class User < ActiveRecord::Base
   }
 
   belongs_to :branch
-  has_one :medical_record
+  has_one :medical_record, dependent: :destroy
   has_many :challanges, -> {reorder("challanges.start_date ASC")}, dependent: :destroy
   has_many :c_trainers, through: :challanges, source: :trainer
   has_many :measurements, -> {reorder("measurements.created_at ASC")}, dependent: :destroy
@@ -59,6 +46,11 @@ class User < ActiveRecord::Base
   def self.load_users(page = 1,per_page = 10)
     includes(:medical_record,challanges: [:trainer],measurements: [:trainer],workouts: [:trainer])
       .paginate(:page => page,:per_page => per_page)
+  end
+
+  def self.load_users_by_branch(branch_id,page = 1,per_page = 10)
+    load_users(page,per_page)
+      .search_by_branch_id(branch_id)
   end
 
   def self.user_by_id(id)
@@ -107,28 +99,32 @@ class User < ActiveRecord::Base
   end
 
   def self.users_with_challanges(page = 1, per_page = 10)
-    joins(:challanges)
+    joins(:challanges).select("users.*")
+      .select("COUNT(challanges.id) AS count_challenges")
       .group("users.id")
       .paginate(:page => page, :per_page => per_page)
       .reorder("count(challanges.id)")
   end
 
   def self.users_with_measurements(page = 1, per_page = 10)
-    joins(:measurements)
+    joins(:measurements).select("users.*")
+      .select("COUNT(measurements.id) AS count_measurements")
       .group("users.id")
       .paginate(:page => page, :per_page => per_page)
       .reorder("count(measurements.id)")
   end
 
   def self.users_with_nutrition_routines(page = 1, per_page = 10)
-    joins(:nutrition_routines)
+    joins(:nutrition_routines).select("users.*")
+      .select("COUNT(nutrition_routines.id) AS count_nutrition_routines")
       .group("users.id")
       .paginate(:page => page, :per_page => per_page)
       .reorder("count(nutrition_routines.id)")
   end
 
   def self.users_with_workouts(page = 1, per_page = 10)
-    joins(:workouts)
+    joins(:workouts).select("users.*")
+      .select("COUNT(workouts.id) AS count_workouts")
       .group("users.id")
       .paginate(:page => page,:per_page =>per_page)
       .reorder("count(workouts.id)")

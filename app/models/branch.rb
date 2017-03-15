@@ -15,32 +15,43 @@ class Branch < ActiveRecord::Base
   has_many :users, -> {reorder("users.name ASC, users.lastname ASC ")}, dependent: :destroy
   has_many :trainers, -> {reorder("trainers.name ASC, trainers.lastname ASC")}, dependent: :nullify
   has_many :events, -> {reorder("events.class_date ASC")}, dependent: :destroy
+  has_many :timetables, dependent: :destroy
 
-  validates :name, :email, :address, :telephone, :open, presence: true
+  # Horarios en otra tabla
+  validates :name, :email, :address, :telephone, presence: true
   validates :name, length: {minimum: 3}
-  validates :open, length: {minimum: 5}
   validates :email, uniqueness: true
   validates_format_of :telephone, :with => /[0-9]{8,10}/x
   validates :address, length: {minimum: 3}
 
   def self.load_branches(page = 1, per_page = 10)
-    includes(:events,gym: [:images],users: [:medical_record,:challanges,:workouts,:nutrition_routines],trainers: [:qualifications,:challanges,:workouts,:nutrition_routines])
+    includes(:timetables,:events,gym: [:images],users: [:medical_record,:challanges,:workouts,:nutrition_routines],trainers: [:qualifications,:challanges,:workouts,:nutrition_routines])
       .paginate(:page => page, :per_page => per_page)
   end
 
   def self.branch_by_id(id)
-    includes(:events,gym: [:images],users: [:medical_record,:challanges,:workouts,:nutrition_routines],trainers: [:qualifications,:challanges,:workouts,:nutrition_routines])
+    includes(:timetables,:events,gym: [:images],users: [:medical_record,:challanges,:workouts,:nutrition_routines],trainers: [:qualifications,:challanges,:workouts,:nutrition_routines])
       .find_by_id(id)
   end
 
   def self.branch_by_email(email)
-    includes(:events,gym: [:images],users: [:medical_record,:challanges,:workouts,:nutrition_routines],trainers: [:qualifications,:challanges,:workouts,:nutrition_routines])
+    includes(:timetables,:events,gym: [:images],users: [:medical_record,:challanges,:workouts,:nutrition_routines],trainers: [:qualifications,:challanges,:workouts,:nutrition_routines])
       .find_by_email(email)
+  end
+
+  def self.branch_by_email_and_gym_id(gym_id,email)
+    includes(:timetables,:events,gym: [:images],users: [:medical_record,:challanges,:workouts,:nutrition_routines],trainers: [:qualifications,:challanges,:workouts,:nutrition_routines])
+      .find_by_gym_id_and_email(gym_id,email)
   end
 
   def self.branches_by_name(name,page = 1, per_page = 10)
     load_branches(page,per_page)
       .where("branches.name LIKE ?", "#{name.downcase}%")
+  end
+
+  def self.branches_by_name_and_gym_id(gym_id,name,page = 1, per_page = 10)
+    branches_by_name(name,page,per_page)
+      .search_by_gym_id(gym_id)
   end
 
   def self.branches_by_gym_id(gym_id,page = 1, per_page = 10)
@@ -59,6 +70,7 @@ class Branch < ActiveRecord::Base
 
   def self.branches_with_events(page = 1, per_page = 10)
     joins(:events).select('branches.*')
+      .select("COUNT(events.id AS count_events)")
       .group("brances.id")
       .paginate(:page => page, :per_page => per_page)
       .reorder("count(events.id)")
@@ -66,6 +78,7 @@ class Branch < ActiveRecord::Base
 
   def self.branches_with_trainers(page = 1, per_page = 10)
     joins(:trainers).select('branches.*')
+      .select("COUNT(trainers.id AS count_trainers)")
       .group("branches.id")
       .paginate(:page => page, :per_page => per_page)
       .reorder("count(trainers.id)")
@@ -73,16 +86,24 @@ class Branch < ActiveRecord::Base
 
   def self.branches_with_users(page = 1, per_page = 10)
     joins(:users).select('branches.*')
+      .select("COUNT(users.id AS count_users)")
       .group("branches.id")
       .paginate(:page => page, :per_page => per_page)
       .reorder("count(users.id)")
+  end
+
+  def self.branches_with_timetables(page = 1,per_page = 10)
+    joins(:timetables).select("branches.*")
+      .group("branches.id")
+      .paginate(:page => page,:per_page => per_page)
+      .reorder("count(timetables.id)")
   end
 
   def self.brances_with_events_by_range(type,page = 1, per_page = 10,year = 2017, month = 1)
     branches_with_events_by_date(Branch.new.set_range(type,year,month),page,per_page)
   end
 
-  def self.branches_with_events_by_range_by_gym(gym_id,type,page = 1,per_page = 10, year = 2017, month = 1)
+  def self.branches_with_events_by_range_and_gym(gym_id,type,page = 1,per_page = 10, year = 2017, month = 1)
     branches_with_events_by_date_by_gym(gym_id,Branch.new.set_range(type,year,month),page,per_page)
   end
 
@@ -102,6 +123,5 @@ class Branch < ActiveRecord::Base
       .paginate(:page => page, :per_page => per_page)
       .references(:events)
   end
-
 
 end

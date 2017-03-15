@@ -38,7 +38,7 @@ class DeviseTokenAuthCreateTrainers < ActiveRecord::Migration[5.0]
       t.string :lastname
       t.string :mobile
       t.string :email
-      t.text :speciality
+      t.string :speciality, array: true, default: []
       t.integer :type
       t.text :avatar
       t.date :birthday
