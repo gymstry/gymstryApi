@@ -1,0 +1,19 @@
+current directory: /Users/AndresGutierrez/RoR/gymstry/vendor/bundle/ruby/2.3.0/gems/byebug-9.0.6/ext/byebug
+/Users/AndresGutierrez/.rbenv/versions/2.3.1/bin/ruby -r ./siteconf20170222-96903-1pf8czu.rb extconf.rb
+creating Makefile
+
+current directory: /Users/AndresGutierrez/RoR/gymstry/vendor/bundle/ruby/2.3.0/gems/byebug-9.0.6/ext/byebug
+make "DESTDIR=" clean
+
+current directory: /Users/AndresGutierrez/RoR/gymstry/vendor/bundle/ruby/2.3.0/gems/byebug-9.0.6/ext/byebug
+make "DESTDIR="
+compiling breakpoint.c
+compiling byebug.c
+compiling context.c
+compiling locker.c
+compiling threads.c
+linking shared-object byebug/byebug.bundle
+
+current directory: /Users/AndresGutierrez/RoR/gymstry/vendor/bundle/ruby/2.3.0/gems/byebug-9.0.6/ext/byebug
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 byebug.bundle ./.gem.20170222-96903-1m79w7x/byebug

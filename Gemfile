@@ -23,6 +23,11 @@ gem 'puma', '~> 3.0'
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
+  gem 'capistrano',         require: false
+  gem 'capistrano-rvm',     require: false
+  gem 'capistrano-rails',   require: false
+  gem 'capistrano-bundler', require: false
+  gem 'capistrano3-puma',   require: false
 end
 
 group :development do
@@ -34,3 +39,26 @@ end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
+#Authentication
+gem 'devise_token_auth', :git => 'git://github.com/lynndylanhurley/devise_token_auth.git'
+gem 'devise'
+gem 'omniauth'
+gem 'omniauth-facebook'
+
+#cross-origin
+gem 'rack-cors', :require => 'rack/cors'
+
+#request-limit
+gem 'rack-attack'
+
+#pagination
+gem 'will_paginate', '~> 3.1.0'
+
+#images
+gem 'carrierwave', '~> 1.0'
+gem "fog"
+gem 'mini_magick'
+
+#file validator
+gem 'file_validators'
