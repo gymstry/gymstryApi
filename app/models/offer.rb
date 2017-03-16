@@ -47,7 +47,7 @@ class Offer < ApplicationRecord
       .serarch_by_gym_id(id)
   end
 
-  def self.offers_by_end_day(date,page = 1 per_page = 10)
+  def self.offers_by_end_day(date,page = 1, per_page = 10)
     load_offers(page = 1,per_page = 10)
       .where(offers:{end_day: date})
   end
