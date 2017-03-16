@@ -16,7 +16,7 @@ class Api::V1::EventsController < ApplicationController
       @events = Event.load_events(@page,@per_page)
         .search_by_branch_id(params[:branch_id])
     end
-    render json: evetns,status: :ok
+    render json: @events,status: :ok
   end
 
   def show
@@ -78,7 +78,8 @@ class Api::V1::EventsController < ApplicationController
 
   def events_by_name
     if params.has_key?(:branch_id)
-      @events = Event.events_by_name(params[:name] || "",@page,@per_page)
+      @events = Event.events_by_name(params[:name] || "",@page,@per_page)
+        .search_by_branch_id(params[:branch_id])
     else
       @events = Event.events_by_name(params[:name] || "",@page,@per_page)
     end

@@ -1,10 +1,10 @@
 class Api::V1::AdminsController < ApplicationController
   include ControllerUtility
   before_action :authenticate_admin!, only: [:destroy]
-  before_action :set_admin, only: [:show,:destroy]
   before_action only: [:index,:admins_by_name,:admins_by_ids,:admins_by_not_ids] do
     set_pagination(params)
   end
+  before_action :set_admin, only: [:show,:destroy]
 
   def index
     @admins = Admin.load_admins(@page,@per_page)
@@ -74,8 +74,8 @@ class Api::V1::AdminsController < ApplicationController
   end
 
   private
-    def set_gym
-      @branch = Admin.gym_by_id(params[:id])
+    def set_admin
+      @admin = Admin.admin_by_id(params[:id])
     end
 
     def set_ids
@@ -86,5 +86,10 @@ class Api::V1::AdminsController < ApplicationController
       ids ||= []
       ids
     end
+
+  private
+  def set_admin
+    @admin = Admin.admins_by_id(params[:id])
+  end
 
 end

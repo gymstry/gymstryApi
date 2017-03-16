@@ -67,7 +67,7 @@ class Api::V1::TrainersController < ApplicationController
   end
 
   def trainer_by_email
-    @trainer = Trainer.trainer_by_email(params[:email] || "")
+    @trainer = Trainer.trainer_by_email(params[:email] || "")
     if @trainer
       if stale?(@trainer,public: true)
         render json: @trainer,status: :ok

@@ -56,7 +56,7 @@ class Api::V1::UsersController < ApplicationController
       @users = User.female.paginate(:page => @page,:per_page => @per_page)
         .search_by_branch_id(params[:branch_id])
     else
-      @users = User.female.paginate(:page => @page,:per_page => @per_page)
+      @users = User.female.paginate(:page => @page,:per_page => @per_page)
     end
     render json: @users,status: :ok
   end
@@ -100,7 +100,7 @@ class Api::V1::UsersController < ApplicationController
       @users = User.users_by_name(params[:name] || "", @page, @per_page)
         .search_by_branch_id(params[:branch_id])
     else
-      @users = User.users_by_name(params[:name] || "",@page,@per_page)
+      @users = User.users_by_name(params[:name] || "", @page, @per_page)
     end
     render json: @users,status: :ok
   end
@@ -110,7 +110,7 @@ class Api::V1::UsersController < ApplicationController
       @users = User.users_by_lastname(params[:lastname] || "",@page,@per_page)
         .seach_by_branch_id(params[:branch_id])
     else
-      @users = User.users_by_lastname(params[:lastname] || "",@page,@per_page)
+      @users = User.users_by_lastname(params[:lastname] || "",@page,@per_page)
     end
     render json: @users,status: :ok
   end

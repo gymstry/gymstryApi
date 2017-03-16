@@ -4,7 +4,7 @@ module ControllerUtility
     @page = params[:page]
     @per_page = params[:size]
     @page ||= 1
-    @per_page || = 10
+    @per_page ||= 10
   end
 
   def record_not_found
