@@ -74,8 +74,8 @@ class Api::V1::AdminsController < ApplicationController
   end
 
   private
-    def set_gym
-      @branch = Admin.gym_by_id(params[:id])
+    def set_admin
+      @admin = Admin.admin_by_id(params[:id])
     end
 
     def set_ids
