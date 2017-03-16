@@ -1,6 +1,6 @@
 class Api::V1::ExercisesController < ApplicationController
   include ControllerUtility
-  devise_token_auth_group, :member,contains: [:admin,:trainer]
+  devise_token_auth_group :member,contains: [:admin,:trainer]
   before_action :authenticate_member!, only: [:create,:update,:add_images,:destroy]
   before_action :set_exercise, only: [:show,:update,:destroy,:add_images]
   before_action only: [:index] do
@@ -75,7 +75,7 @@ class Api::V1::ExercisesController < ApplicationController
       if params.has_key?(:image)
         images = params[:image][:images]
         descriptions = params[:image][:descriptions]
-        images.each_with_index |val,index| do
+        images.each_with_index do |val,index| 
           image = Image.new(image: images[index],description: description[index])
           @exercise.images << image
           image.save

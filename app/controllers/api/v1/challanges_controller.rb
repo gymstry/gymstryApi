@@ -14,7 +14,7 @@ class Api::V1::ChallangesController < ApplicationController
     elsif params.has_key?(:trainer_id)
       @challenges = Challange.challanges_by_trainer_id(params[:trainer_id],@page,@per_page)
     else
-      @challanges = Challange.load_challanges(@page,@per_page)
+      @challenges = Challange.load_challanges(@page,@per_page)
     end
     render json: @challenges,status: :ok
   end
@@ -80,7 +80,7 @@ class Api::V1::ChallangesController < ApplicationController
   end
 
   def challanges_by_name
-    @challenges = Challange.challanges_by_name(params[:name] || "", @page,@per_page)
+    @challenges = Challange.challanges_by_type(params[:name] || "",@page,@per_page)
     render json: @challanges, status: :ok
   end
 

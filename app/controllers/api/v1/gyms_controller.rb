@@ -1,13 +1,14 @@
 class Api::V1::GymsController < ApplicationController
   include ControllerUtility
-  before_action :authenticate_admin! only: [:destroy]
+  before_action :authenticate_admin!, only: [:destroy]
   before_action :set_gym, only: [:show,:destroy]
   before_action only: [:index,:gyms_by_name,:gyms_by_ids,:gyms_by_not_ids,:gyms_with_branches,:gyms_with_pictures,:gyms_by_speciality,:gyms_with_offers,:gyms_with_offers_and_date] do
     set_pagination(params)
   end
 
   def index
-    render json: load_gyms(@page, @per_page), status: :ok
+    @gyms = Gym.load_gyms(@page,@per_page)
+    render json: @gyms, status: :ok
   end
 
   def show
@@ -78,7 +79,7 @@ class Api::V1::GymsController < ApplicationController
   end
 
   def gyms_with_offers_and_date
-    @gyms = Gym.gyms_with_offers_and_date(params[:type] || "", @page, @per_page, params[:year],params[:month])
+    @gyms = Gym.gyms_with_offers_and_date(params[:type] || "", @page, @per_page, params[:year],params[:month])
     render json: @gyms,status: :ok
   end
 

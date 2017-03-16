@@ -2,7 +2,7 @@ Rails.application.routes.draw do
 
   namespace :api, defaults: {format: :json} do
     namespace :v1 do
-      resource :admins, only: [:show,:index,:destroy] do
+      resources :admins, only: [:show,:index,:destroy] do
         collection  do
           get 'admin-by-email', to: "admins#admin_by_email"
           get 'admin-by-username', to: "admins#admin_by_username"
@@ -185,7 +185,7 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :exercies do
+      resources :exercises do
         member do
           get 'add-images', to: "exercises#add_images"
         end

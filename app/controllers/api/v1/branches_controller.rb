@@ -130,7 +130,7 @@ class Api::V1::BranchesController < ApplicationController
     if params.has_key?(:gym_id)
       @branches = Branch.branches_with_events_by_range_and_gym(params[:gym_id],params[:type] || "today",@page,@per_page, params[:year] || 2017, params[:month] || 1)
     else
-      @branches = Branch.brances_with_events_by_range(params[:type] || "today",@page. @per_page,params[:year] || 2017, params[:month] || 1)
+      @branches = Branch.branches_with_events_by_range_and_gym(params[:type] || "today",@page,@per_page, params[:year] || 2017, params[:month] || 1)
     end
     render json: @branches,status: :ok
   end
