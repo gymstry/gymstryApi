@@ -10,11 +10,11 @@ class Api::V1::ChallangesController < ApplicationController
 
   def index
     if params.has_key?(:user_id)
-      @challenges = Challange.challanges_by_user_id(params[:user_id],@page,@per_page)
+      @challenges = Challange.challanges_by_user_id(params[:user_id],challenge_pagination)
     elsif params.has_key?(:trainer_id)
-      @challenges = Challange.challanges_by_trainer_id(params[:trainer_id],@page,@per_page)
+      @challenges = Challange.challanges_by_trainer_id(params[:trainer_id],challenge_pagination)
     else
-      @challenges = Challange.load_challanges(@page,@per_page)
+      @challenges = Challange.load_challanges(challenge_pagination)
     end
     render json: @challenges,status: :ok
   end
@@ -70,79 +70,79 @@ class Api::V1::ChallangesController < ApplicationController
   end
 
   def challanges_by_ids
-    @challenges = Challange.challanges_by_ids(set_ids,@page,@per_page)
+    @challenges = Challange.challanges_by_ids(set_ids,challenge_pagination)
     render json: @challenges,status: :ok
   end
 
   def challanges_by_not_ids
-    @challenges = Challange.challanges_by_not_ids(set_ids,@page,@per_page)
+    @challenges = Challange.challanges_by_not_ids(set_ids,challenge_pagination)
     render json: @challenges,status: :ok
   end
 
   def challanges_by_name
-    @challenges = Challange.challanges_by_type(params[:name] || "",@page,@per_page)
+    @challenges = Challange.challanges_by_type(params[:name] || "",challenge_pagination)
     render json: @challanges, status: :ok
   end
 
   def challanges_by_type
     if params.has_key?(:user_id)
-      @challenges = Challange.challanges_by_type(params[:type] || "",@page,@per_page)
+      @challenges = Challange.challanges_by_type(params[:type] || "",challenge_pagination)
         .search_by_user_id(params[:user_id])
     elsif params.has_key?(:trainer_id)
-      @challenges = Challange.challanges_by_type(params[:type] || "",@page,@per_page)
+      @challenges = Challange.challanges_by_type(params[:type] || "",challenge_pagination)
         .search_by_trainer_id(params[:trainer_id])
     else
-      @challenges = Challange.challanges_by_type(params[:type] || "",@page,@per_page)
+      @challenges = Challange.challanges_by_type(params[:type] || "",challenge_pagination)
     end
     render json: @challenges,status: :ok
   end
 
   def challanges_by_state
     if params.has_key?(:user_id)
-      @challenges = Challange.challanges_by_state(params[:state] || "", @page,@per_page)
+      @challenges = Challange.challanges_by_state(params[:state] || "", challenge_pagination)
         .search_by_user_id(params[:user_id])
     elsif params.has_key?(:trainer_id)
-      @challenges = Challange.challanges_by_state(params[:state] || "", @page,@per_page)
+      @challenges = Challange.challanges_by_state(params[:state] || "", challenge_pagination)
         .search_by_trainer_id(params[:trainer_id])
     else
-      @challenges = Challange.challanges_by_state(params[:state] || "", @page,@per_page)
+      @challenges = Challange.challanges_by_state(params[:state] || "", challenge_pagination)
     end
     render json: @challenges,status: :ok
   end
 
   def challanges_by_start_date
     if params.has_key?(:user_id) && params.has_key?(:trainer_id)
-      @challenges = Challange.challanges_by_start_date_and_user_and_trainer(params[:type],params[:user_id],params[:trainer_id],@page,@per_page,params[:year],params[:month])
+      @challenges = Challange.challanges_by_start_date_and_user_and_trainer(params[:type],challenge_pagination.merge({user: params[:user_id],trainer: params[:trainer_id],year: params[:year],month: params[:month]}))
     elsif params.has_ke?(:user_id)
-      @challenges = Challange.challanges_by_start_date_and_user(params[:type],params[:user_id],@page,@per_page,params[:year],params[:month])
+      @challenges = Challange.challanges_by_start_date_and_user(params[:type],challenge_pagination.merge({trainer: params[:trainer_id],year: params[:year],month: params[:month]}))
     elsif params.has_key?(:trainer_id)
-      @challenges = Challange.challanges_by_start_date_and_trainer(params[:type],params[:trainer_id],@page,@per_page,params[:year],params[:month])
+      @challenges = Challange.challanges_by_start_date_and_trainer(params[:type],challenge_pagination.merge({user: params[:user_id],year: params[:year],month: params[:month]}))
     else
-      @challenges = Challange.challanges_by_start_date(params[:type],@page,@per_page,params[:year],params[:month])
+      @challenges = Challange.challanges_by_start_date(params[:type],challenge_pagination.merge({year: params[:year],month: params[:month]}))
     end
     render json: @challenges,status: :ok
   end
 
   def challanges_by_end_date
     if params.has_key?(:user_id) && params.has_key?(:trainer_id)
-      @challenges = Challange.challanges_by_end_date_and_user_and_trainer(params[:type],params[:user_id],params[:trainer_id],@page,@per_page,params[:year],params[:month])
+      @challenges = Challange.challanges_by_end_date_and_user_and_trainer(params[:type],challenge_pagination.merge({user: params[:user_id],trainer: params[:trainer_id],year: params[:year],month: params[:month]}))
     elsif params.has_ke?(:user_id)
-      @challenges = Challange.challanges_by_end_date_and_user(params[:type],params[:user_id],@page,@per_page,params[:year],params[:month])
+      @challenges = Challange.challanges_by_end_date_and_user(params[:type],challenge_pagination.merge({user: params[:user_id],year: params[:year],month: params[:month]}))
     elsif params.has_key?(:trainer_id)
-      @challenges = Challange.challanges_by_end_date_and_trainer(params[:type],params[:trainer_id],@page,@per_page,params[:year],params[:month])
+      @challenges = Challange.challanges_by_end_date_and_trainer(params[:type],challenge_pagination.merge({trainer: params[:trainer_id],year: params[:year],month: params[:month]}))
     else
-      @challenges = Challange.challanges_by_end_date(params[:type],@page,@per_page,params[:year],params[:month])
+      @challenges = Challange.challanges_by_end_date(params[:type],challenge_pagination.merge({year: params[:year],month: params[:month]}))
     end
     render json: @challenges,status: :ok
   end
 
   def challanges
     if params.has_key?(:user_id) && params.has_key?(:trainer_id)
-      @challenges = Challange.challanges_by_user_and_trainer_id(params[:user_id],params[:trainer_id],@page,@per_page)
+      @challenges = Challange.challanges_by_user_and_trainer_id(params[:user_id],challenge_pagination.merge({trainer: params[:trainer_id]}))
     elsif params.has_key?(:user_id)
-      @challenges = Challange.challanges_by_user_id(params[:user_id],@page,@per_page)
+      @challenges = Challange.challanges_by_user_id(params[:user_id],challenge_pagination)
     elsif params.has_key?(:trainer_id)
-      @challenges = Challange.challanges_by_trainer_id(params[:trainer_id],@page,@per_page)
+      @challenges = Challange.challanges_by_trainer_id(params[:trainer_id],challenge_pagination)
     end
     render json: @challenges, status: :ok
   end
@@ -157,9 +157,13 @@ class Api::V1::ChallangesController < ApplicationController
     params.require(:challange).permit(:name,:description,:type_challange,:start_date,:end_date,:state,:objective)
   end
 
+  def challenge_pagination
+    {page: @page,per_page: @per_page}
+  end
+
   def set_ids
     if params.has_key?(:challenge)
-      ids = params[:challenge][:ids]
+      ids = params[:challenge][:ids].split(",")
     end
     ids ||= []
     ids

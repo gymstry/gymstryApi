@@ -1,12 +1,12 @@
 class WorkoutPerDay < ApplicationRecord
 
-  default_scope {order("workout_per_days.name ASC")}
+  default_scope {order("workout_per_days.id ASC, workout_per_days.order ASC")}
   scope :order_by_name, -> (ord) {order("workout_per_days.name #{ord}")}
   scope :search_by_workout_id, -> (id) {where(workout_per_days:{workout: id})}
   scope :order_by_level, -> (ord) {order("workout_per_days.level #{ord}")}
 
   belongs_to :workout
-  has_many :workout_per_day_per_exercises, dependent: :destroy
+  has_many :workout_per_day_per_exercises
   has_many :routines, -> {reorder("exercises.name ASC")}, through: :workout_per_day_per_exercises
 
   enum level:{

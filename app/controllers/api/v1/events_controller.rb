@@ -11,9 +11,9 @@ class Api::V1::EventsController < ApplicationController
 
   def index
     if params.has_key?(:branch_id)
-      @events = Event.load_events(@page,@per_page)
+      @events = Event.load_events(event_pagination)
     else
-      @events = Event.load_events(@page,@per_page)
+      @events = Event.load_events(event_pagination)
         .search_by_branch_id(params[:branch_id])
     end
     render json: @events,status: :ok
@@ -78,49 +78,49 @@ class Api::V1::EventsController < ApplicationController
 
   def events_by_name
     if params.has_key?(:branch_id)
-      @events = Event.events_by_name(params[:name] || "",@page,@per_page)
+      @events = Event.events_by_name(params[:name] || "",event_pagination)
         .search_by_branch_id(params[:branch_id])
     else
-      @events = Event.events_by_name(params[:name] || "",@page,@per_page)
+      @events = Event.events_by_name(params[:name] || "",event_pagination)
     end
     render json: @events,status: :ok
   end
 
   def events_by_ids
-    @events = Event.events_by_ids(set_ids,@page,@per_page)
+    @events = Event.events_by_ids(set_ids,event_pagination)
     render json: @events,status: :ok
   end
 
   def events_by_not_ids
-    @events = Event.events_by_not_ids(set_ids,@page,@per_page)
+    @events = Event.events_by_not_ids(set_ids,event_pagination)
     render json: @events,status: :ok
   end
 
   def events_by_date
     if params.has_key?(:branch_id)
-      @events = Event.events_by_date_and_branch(params[:type] || 'today',params[:branch_id],@page,@per_page)
+      @events = Event.events_by_date_and_branch(params[:type] || 'today',event_pagination.merge({trainer: params[:trainer_id],year: params[:year],month:params[:month]}))
     else
-      @events = Event.events_by_date(params[:type] || 'today',@page,@per_page)
+      @events = Event.events_by_date(params[:type] || 'today',event_pagination.merge({year: params[:year],month: params[:month]}))
     end
     render json: @events,status: :ok
   end
 
   def events_by_type_event
     if params.has_key?(:branch_id)
-      @events = Event.events_by_type_event(params[:type_event] || "other",@page,@per_page)
+      @events = Event.events_by_type_event(params[:type_event] || "other",event_pagination)
         .search_by_branch_id(params[:branch_id])
     else
-      @events = Event.events_by_type_event(params[:type_event] || "other", @page,@per_page)
+      @events = Event.events_by_type_event(params[:type_event] || "other", event_pagination)
     end
     render json: @events,status: :ok
   end
 
   def events_by_type_event_and_date
     if params.has_key?(:branch_id)
-      @events = Event.events_by_type_event_date(params[:type_event] || "other", params[:type] || "today",@page,@per_page)
+      @events = Event.events_by_type_event_date(params[:type_event] || "other", event_pagination.merge({type: params[:type] || "today" ,year: params[:year],month: params[:month]}))
         .search_by_branch_id(params[:branch_id])
     else
-      @events = Event.events_by_type_event_date(params[:type_event] || "other", params[:type] || "today",@page,@per_page)
+      @events = Event.events_by_type_event_date(params[:type_event] || "other",event_pagination.merge({type: params[:type] || "today" ,year: params[:year],month: params[:month]}))
     end
     render json: @events,status: :ok
   end
@@ -131,13 +131,17 @@ class Api::V1::EventsController < ApplicationController
     @event = Event.event_by_id(params[:id])
   end
 
+  def event_pagination
+    {page: @page,per_page: @per_page}
+  end
+
   def event_params
     params.require(:event).permit(:name,:description,:otro_name,:class_date,:duration,:type_event,:image)
   end
 
   def set_ids
     if params.has_key?(:event)
-      ids = params[:event][:ids]
+      ids = params[:event][:ids].split(",")
     end
     ids ||= []
     ids

@@ -7,7 +7,7 @@ class Api::V1::AdminsController < ApplicationController
   before_action :set_admin, only: [:show,:destroy]
 
   def index
-    @admins = Admin.load_admins(@page,@per_page)
+    @admins = Admin.load_admins(admin_pagination)
     render json: @admins,status: :ok
   end
 
@@ -57,19 +57,19 @@ class Api::V1::AdminsController < ApplicationController
   end
 
   def admins_by_name
-    @admins = Admin.admins_by_name(params[:name] || "",@page,@per_page)
+    @admins = Admin.admins_by_name(params[:name] || "",admin_pagination)
     render json: @admins,status: :ok
   end
 
   def admins_by_ids
     ids = set_ids
-    @admins = Admin.admins_by_ids(ids,@page,@per_page)
+    @admins = Admin.admins_by_ids(ids,admin_pagination)
     render json: @admins, status: :ok
   end
 
   def admins_by_not_ids
     ids = set_ids
-    @admins = Admin.admins_by_not_ids(ids,@page,@per_page)
+    @admins = Admin.admins_by_not_ids(ids,admin_pagination)
     render json: @admins, status: :ok
   end
 
@@ -81,10 +81,14 @@ class Api::V1::AdminsController < ApplicationController
     def set_ids
       ids = nil
       if params.has_key?(:admin)
-        ids = params[:admin][:ids]
+        ids = params[:admin][:ids].split(",")
       end
       ids ||= []
       ids
+    end
+
+    def admin_pagination
+      {page: @page, per_page: @per_page}
     end
 
   private

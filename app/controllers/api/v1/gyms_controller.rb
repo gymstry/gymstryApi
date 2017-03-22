@@ -7,7 +7,7 @@ class Api::V1::GymsController < ApplicationController
   end
 
   def index
-    @gyms = Gym.load_gyms(@page,@per_page)
+    @gyms = Gym.load_gyms(gym_pagination)
     render json: @gyms, status: :ok
   end
 
@@ -42,50 +42,54 @@ class Api::V1::GymsController < ApplicationController
   end
 
   def gyms_by_name
-    @gyms = Gym.gyms_by_name(params[:name] || "", @page,@per_page)
+    @gyms = Gym.gyms_by_name(params[:name] || "", gym_pagination)
     render json: @gyms, status: :ok
   end
 
   def gyms_by_ids
     ids = set_ids
-    @gyms = Gym.gyms_by_ids(ids,@page,@per_page)
+    @gyms = Gym.gyms_by_ids(ids,gym_pagination)
     render json: @gyms, status: :ok
   end
 
   def gyms_by_not_ids
     ids = set_ids
-    @gyms = Gym.gyms_by_not_ids(ids,@page,@per_page)
+    @gyms = Gym.gyms_by_not_ids(ids,gym_pagination)
     render json: @gyms, status: :ok
   end
 
   def gyms_with_branches
-    @gyms = Gym.gyms_with_branches(@page,@per_page)
+    @gyms = Gym.gyms_with_branches(gym_pagination)
     render json: @gyms,status: :ok
   end
 
   def gyms_with_pictures
-    @gyms = Gym.gyms_with_pictures(@page,@per_page)
+    @gyms = Gym.gyms_with_pictures(gym_pagination)
     render json: @gyms, status: :ok
   end
 
   def gyms_with_offers
-    @gyms = Gym.gyms_with_offers(@page,@per_page)
+    @gyms = Gym.gyms_with_offers(gym_pagination)
     render json: @gyms,status: :ok
   end
 
   def gyms_by_speciality
-    @gyms = Gym.gyms_by_speciality(params[:speciality] || "", @page,@per_page)
+    @gyms = Gym.gyms_by_speciality(params[:speciality] || "", gym_pagination)
     render json: @gyms,status: :ok
   end
 
   def gyms_with_offers_and_date
-    @gyms = Gym.gyms_with_offers_and_date(params[:type] || "", @page, @per_page, params[:year],params[:month])
+    @gyms = Gym.gyms_with_offers_and_date(params[:type] || "", gym_pagination.merge({year: params[:year],month: params[:month]}))
     render json: @gyms,status: :ok
   end
 
   private
     def set_gym
       @gym = Gym.gym_by_id(params[:id])
+    end
+
+    def gym_pagination
+      {page: @page,per_page: @per_page}
     end
 
     def set_ids

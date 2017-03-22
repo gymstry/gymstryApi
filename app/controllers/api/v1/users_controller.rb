@@ -8,9 +8,9 @@ class Api::V1::UsersController < ApplicationController
   end
   def index
     if params.has_key?(:branch_id)
-      @users = load_users_by_branch(params[:branch_id],@page,@per_page)
+      @users = load_users_by_branch(params[:branch_id],user_pagination)
     else
-      @users = User.load_users(@page,@per_page)
+      @users = User.load_users(user_pagination)
     end
     render json: @users,status: :ok
   end
@@ -63,13 +63,13 @@ class Api::V1::UsersController < ApplicationController
 
   def users_by_ids
     ids = set_ids
-    @users = User.users_by_ids(ids,@page,@per_page)
+    @users = User.users_by_ids(ids,user_pagination)
     render json: @users,status: :ok
   end
 
   def users_by_not_ids
     ids = set_ids
-    @users = User.users_by_not_ids(ids,@page,@per_page)
+    @users = User.users_by_not_ids(ids,user_pagination)
     render json: @users,status: :ok
   end
 
@@ -97,85 +97,90 @@ class Api::V1::UsersController < ApplicationController
 
   def users_by_name
     if params.has_key?(:branch_id)
-      @users = User.users_by_name(params[:name] || "", @page, @per_page)
+      @users = User.users_by_name(params[:name] || "", user_pagination)
         .search_by_branch_id(params[:branch_id])
     else
-      @users = User.users_by_name(params[:name] || "", @page, @per_page)
+      @users = User.users_by_name(params[:name] || "", user_pagination)
     end
     render json: @users,status: :ok
   end
 
   def users_by_lastname
     if params.has_key?(:branch_id)
-      @users = User.users_by_lastname(params[:lastname] || "",@page,@per_page)
+      @users = User.users_by_lastname(params[:lastname] || "",user_pagination)
         .seach_by_branch_id(params[:branch_id])
     else
-      @users = User.users_by_lastname(params[:lastname] || "",@page,@per_page)
+      @users = User.users_by_lastname(params[:lastname] || "",user_pagination)
     end
     render json: @users,status: :ok
   end
 
   def users_by_username_or_email
     if params.has_key?(:branch_id)
-      @users = User.users_by_username_or_email(params[:q] || "", @page,@per_page)
+      @users = User.users_by_username_or_email(params[:q] || "", user_pagination)
         .search_by_branch_id(params[:brach_id])
     else
-      @users = User.users_by_username_or_email(params[:q] || "", @page,@per_page)
+      @users = User.users_by_username_or_email(params[:q] || "", user_pagination)
     end
     render json: @users,status: :ok
   end
 
   def users_by_birthday
     if params.has_key?(:branch_id)
-      @users = User.users_by_birthday(params[:type],@page,@per_page,params[:year],params[:month])
+      @users = User.users_by_birthday(params[:type],user_pagination.merge({year: params[:year],month: params[:month]}))
         .search_by_branch_id(params[:brach_id])
     else
-      @users = User.users_by_birthday(params[:type],@page,@per_page,params[:year],params[:month])
+      @users = User.users_by_birthday(params[:type],user_pagination.merge({year: params[:year],month: params[:month]}))
     end
     render json: @users,status: :ok
   end
 
   def users_with_challenges
     if params.has_key?(:branch_id)
-      @users = User.users_with_challanges(@page,@per_page)
+      @users = User.users_with_challanges(user_pagination)
         .search_by_branch_id(params[:brach_id])
     else
-      @users = User.users_with_challanges(@page,@per_page)
+      @users = User.users_with_challanges(user_pagination)
     end
     render json: @users,status: :ok
   end
 
   def users_with_measurements
     if params.has_key?(:branch_id)
-      @users = User.users_with_measurements(@page,@per_page)
+      @users = User.users_with_measurements(user_pagination)
+        .search_by_branch_id(params[:brach_id])
     else
-      @users = User.users_with_measurements(@page,@per_page)
+      @users = User.users_with_measurements(user_pagination)
     end
     render json: @users,status: :ok
   end
 
   def users_with_nutrition_routines
     if params.has_key?(:branch_id)
-      @users = User.users_with_nutrition_routines(@page,@per_page)
+      @users = User.users_with_nutrition_routines(user_pagination)
         .search_by_branch_id(params[:branch_id])
     else
-      @users = User.users_with_nutrition_routines(@page,@per_page)
+      @users = User.users_with_nutrition_routines(user_pagination)
     end
     render json: @users,status: :ok
   end
 
   def users_with_workouts
     if params.has_key?(:branch_id)
-      @users = User.users_with_workouts(@page,@per_page)
+      @users = User.users_with_workouts(user_pagination)
         .search_by_branch_id(params[:branch_id])
     else
-      @users = User.users_with_workouts(@page,@per_page)
+      @users = User.users_with_workouts(user_pagination)
     end
   end
 
   private
     def set_user
       @user = User.branch_by_id(params[:id])
+    end
+
+    def user_pagination
+      {page: @page,per_page: @per_page}
     end
 
     def set_ids

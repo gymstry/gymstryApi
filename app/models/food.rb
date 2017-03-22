@@ -9,7 +9,7 @@ class Food < ApplicationRecord
   scope :order_by_fats, -> (ord) {order("foods.fats #{ord}")}
   scope :order_by_created_at, -> (ord) {order("foods.created_at, #{ord}")}
 
-  has_many :food_day_per_foods, dependent: :destroy
+  has_many :food_day_per_foods
   has_many :food_days, through: :food_day_per_foods
 
   validates :name, :proteins,:carbohydrates,:fats, presence: true

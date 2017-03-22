@@ -6,11 +6,12 @@ class MedicalRecord < ApplicationRecord
   scope :order_by_hips, -> (ord) {order("medical_records.waist #{ord}")}
   scope :order_by_body_fat_percentage, -> (ord) {order("medical_records.body_fat_percentage #{ord}")}
   scope :order_by_updated_at, -> (ord) {order("medical_records.updated_at #{ord}")}
+  scope :search_by_user, -> (id) {where("medical_records.user_id = ?", id)}
 
   belongs_to :user
-  has_many :medical_record_by_disease, dependent: :destroy
+  has_many :medical_record_by_disease
   has_many :diseases, -> {(reorder("diseases.name ASC"))}, through: :medical_record_by_disease
-  has_many :prohibited_exercises, dependent: :destroy
+  has_many :prohibited_exercises
   has_many :exercises, -> {(reorder("exercises.name ASC"))}, through: :prohibited_exercises
 
   validates :weight,:chest,:hips,:waist,:body_fat_percentage,presence: true

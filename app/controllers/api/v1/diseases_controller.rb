@@ -7,7 +7,7 @@ class Api::V1::DiseasesController < ApplicationController
   end
 
   def index
-    @diseases = Disease.load_diseases(@page,@per_page)
+    @diseases = Disease.load_diseases(disesae_pagination)
     render json: @diseases,status: :ok
   end
 
@@ -52,32 +52,32 @@ class Api::V1::DiseasesController < ApplicationController
   end
 
   def diseases_by_name
-    @diseases = Disease.diseases_by_name(params[:name] || "",@page,@per_page)
+    @diseases = Disease.diseases_by_name(params[:name] || "",disesae_pagination)
     render json: @diseases,status: :ok
   end
 
   def diseases_by_ids
-    @diseases = Disease.diseases_by_ids(set_ids,@page,@per_page)
+    @diseases = Disease.diseases_by_ids(set_ids,disesae_pagination)
     render json: @diseases,status: :ok
   end
 
   def diseases_by_not_ids
-    @diseases = Disease.diseases_by_not_ids(set_ids,@page,@per_page)
+    @diseases = Disease.diseases_by_not_ids(set_ids,disesae_pagination)
     render json: @diseases,status: :ok
   end
 
   def diseases_with_medical_records
-    @diseases = Disease.diseases_with_medical_records(@page,@per_page)
+    @diseases = Disease.diseases_with_medical_records(disesae_pagination)
     render json: @diseases,status: :ok
   end
 
   def diseases_with_medical_records_by_id
-    @diseases = Disease.diseases_with_medical_records_by_id(params[:medical_record_id],@page,@per_page)
+    @diseases = Disease.diseases_with_medical_records_by_id(params[:medical_record_id],disesae_pagination)
     render json: @diseases,status: :ok
   end
 
   def diseases_by_user
-    @diseases = Disease.diseases_by_user(params[:user_id],@page,@per_page)
+    @diseases = Disease.diseases_by_user(params[:user_id],disesae_pagination)
     render json: @diseases,status: :ok
   end
 
@@ -90,10 +90,14 @@ class Api::V1::DiseasesController < ApplicationController
     params.require(:disase).permit(:name,:description)
   end
 
+  def disesae_pagination
+    {page: @page,per_page: @per_page}
+  end
+
 
   def set_ids
     if params.has_key?(:disease)
-      ids = params[:disease][:ids]
+      ids = params[:disease][:ids].split(",")
     end
     ids ||= []
     ids

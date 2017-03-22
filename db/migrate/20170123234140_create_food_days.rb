@@ -4,7 +4,7 @@ class CreateFoodDays < ActiveRecord::Migration[5.0]
       t.integer :type_food, :null => false
       t.text :description,  :default => ""
       t.text :benefits, :default => ""
-      t.references :nutrition_routine, foreign_key: true
+      t.references :nutrition_routine, foreign_key: true, on_delete: :cascade
 
       t.timestamps
     end

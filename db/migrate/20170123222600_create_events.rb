@@ -4,12 +4,11 @@ class CreateEvents < ActiveRecord::Migration[5.0]
       t.string :name, :null => false
       t.text :description, :default => ""
       t.string :otro_name, :null => false, :default => ""
-      t.date :class_date
+      t.datetime :class_date, :default => DateTime.now
       t.decimal :duration, :default => 1, :null => false
-      t.integer :type_event
+      t.integer :type_event, :default => 0
       t.text :image
-      t.references :branch, foreign_key: true
-
+      t.references :branch, foreign_key: true, on_delete: :cascade
       t.timestamps
     end
     add_index :events, :name

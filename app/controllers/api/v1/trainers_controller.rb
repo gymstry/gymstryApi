@@ -9,10 +9,10 @@ class Api::V1::TrainersController < ApplicationController
 
   def index
     if params.has_key?(:branch_id)
-      @branches = Branch.load_trainers(@page,@per_page)
+      @branches = Branch.load_trainers(trainer_pagination)
         .search_by_branch_id(params[:branch_id])
     else
-
+      @branches = Branch.load_trainers(trainer_pagination)
     end
     render json: @branches,status: :ok
   end
@@ -45,13 +45,13 @@ class Api::V1::TrainersController < ApplicationController
 
   def trainers_by_ids
     ids = set_ids
-    @trainers = Trainer.trainers_by_ids(ids,@page,@per_page)
+    @trainers = Trainer.trainers_by_ids(ids,trainer_pagination)
     render json: @trainers,status: :ok
   end
 
   def trainers_by_not_ids
     ids = set_ids
-    @trainers = Trainer.trainers_by_not_ids(ids,@page,@per_page)
+    @trainers = Trainer.trainers_by_not_ids(ids,trainer_pagination)
     render json: @trainers,status: :ok
   end
 
@@ -79,100 +79,100 @@ class Api::V1::TrainersController < ApplicationController
 
   def trainers_by_name
     if params.has_key?(:branch_id)
-      @trainers = Trainer.trainers_by_name(params[:name] || "",@page,@per_page)
+      @trainers = Trainer.trainers_by_name(params[:name] || "",trainer_pagination)
         .search_by_branch_id(params[:branch_id])
     else
-      @trainers = Trainer.trainers_by_name(params[:name] || "",@page,@per_page)
+      @trainers = Trainer.trainers_by_name(params[:name] || "",trainer_pagination)
     end
     render json: @trainers, status: :ok
   end
 
   def trainers_by_lastname
     if params.has_key?(:branch_id)
-      @trainers = Trainer.trainers_by_lastname(params[:lastname] || "",@page,@per_page)
+      @trainers = Trainer.trainers_by_lastname(params[:lastname] || "",trainer_pagination)
         .search_by_branch_id(params[:branch_id])
     else
-      @trainers = Trainer.trainers_by_lastname(params[:lastname] || "",@page,@per_page)
+      @trainers = Trainer.trainers_by_lastname(params[:lastname] || "",trainer_pagination)
     end
     render json: @trainers,status: :ok
   end
 
   def trainers_by_username_or_email
     if params.has_key?(:branch_id)
-      @trainers = Trainer.trainers_by_username_or_email(params[:q] || "",@page,@per_page)
+      @trainers = Trainer.trainers_by_username_or_email(params[:q] || "",trainer_pagination)
         .search_by_branch_id(params[:branch_id])
     else
-      @trainers = Trainer.trainers_by_username_or_email(params[:q] || "", @page,@per_page)
+      @trainers = Trainer.trainers_by_username_or_email(params[:q] || "", trainer_pagination)
     end
     render json: @trainers, status: :ok
   end
 
   def trainers_by_birthday
     if params.has_key?(:branch_id)
-      @trainers = Trainer.trainers_by_birthday(params[:type],@page,@per_page,params[:year],params[:month])
+      @trainers = Trainer.trainers_by_birthday(params[:type],trainer_pagination.merge({year: params[:year],month: params[:month]}))
         .search_by_branch_id(params[:branch_id])
     else
-      @trainers = Trainer.trainers_by_birthday(params[:type],@page,@per_page,params[:year],params[:month])
+      @trainers = Trainer.trainers_by_birthday(params[:type],trainer_pagination.merge({year: params[:year],month: params[:month]}))
     end
     render json: @trainers, status: :ok
   end
 
   def trainers_by_speciality
     if params.has_key?(:branch_id)
-      @trainers = Trainer.trainers_by_speciality(params[:speciality],@page,@per_page)
+      @trainers = Trainer.trainers_by_speciality(params[:speciality],trainer_pagination)
         .search_by_branch_id(params[:branch_id])
     else
-      @trainers = Trainer.trainers_by_speciality(params[:speciality],@page,@per_page)
+      @trainers = Trainer.trainers_by_speciality(params[:speciality],trainer_pagination)
     end
     render json: @trainers,status: :ok
   end
 
   def trainers_with_qualifications
     if params.has_key?(params[:branch_id])
-      @trainers = Trainer.trainers_with_qualifications(@page,@per_page)
+      @trainers = Trainer.trainers_with_qualifications(trainer_pagination)
         .search_by_branch_id(params[:branch_id])
     else
-      @trainers = Trainer.trainers_with_qualifications(@page,@per_page)
+      @trainers = Trainer.trainers_with_qualifications(trainer_pagination)
     end
     render json: @trainers,status: :ok
   end
 
   def trainers_with_challanges
     if params.has_key?(:branch_id)
-      @trainers = Trainer.trainers_with_challanges(@page,@per_page)
+      @trainers = Trainer.trainers_with_challanges(trainer_pagination)
         .search_by_branch_id(params[:branch_id])
     else
-      @trainers = Trainer.trainers_with_challanges(@page,@per_page)
+      @trainers = Trainer.trainers_with_challanges(trainer_pagination)
     end
     render json: @trainers,status: :ok
   end
 
   def trainers_with_measurements
     if params.has_key?(:branch_id)
-      @trainers = Trainer.trainers_with_measurements(@page,@per_page)
+      @trainers = Trainer.trainers_with_measurements(trainer_pagination)
         .search_by_branch_id(params[:branch_id])
     else
-      @trainers = Trainer.trainers_with_measurements(@page,@per_page)
+      @trainers = Trainer.trainers_with_measurements(trainer_pagination)
     end
     render json: @trainers, status: :ok
   end
 
   def trainers_with_nutrition_routines
     if params.has_key?(:branch_id)
-      @trainers = Trainer.trainers_with_nutrition_routines(@page,@per_page)
+      @trainers = Trainer.trainers_with_nutrition_routines(trainer_pagination)
         .search_by_branch_id(params[:branch_id])
     else
-      @trainers = Trainer.trainers_with_nutrition_routines(@page,@per_page)
+      @trainers = Trainer.trainers_with_nutrition_routines(trainer_pagination)
     end
     render json: @trainers,status: :ok
   end
 
   def trainers_with_workouts
     if params.has_key?(:branch_id)
-      @trainers = Trainer.trainers_with_workouts(@page,@per_page)
+      @trainers = Trainer.trainers_with_workouts(trainer_pagination)
         .search_by_branch_id(params[:branch_id])
     else
-      @trainers = Trainer.trainers_with_workouts(@page,@per_page)
+      @trainers = Trainer.trainers_with_workouts(trainer_pagination)
     end
     render json: @trainers, status: :ok
   end
@@ -181,6 +181,10 @@ class Api::V1::TrainersController < ApplicationController
 
   def set_trainer
     @trainer = Trainer.trainer_by_id(params[:id])
+  end
+
+  def trainer_pagination
+    {page:@page,per_page: @per_page}
   end
 
   def set_ids

@@ -9,7 +9,7 @@ class Routine < ApplicationRecord
   scope :order_by_level, -> (ord) {order("routines.level #{ord}")}
   scope :search_by_exercise_id, -> (id) {where(routines:{exercise_id: id})}
 
-  has_many :workout_per_day_per_exercises, dependent: :destroy
+  has_many :workout_per_day_per_exercises
   has_many :workout_per_days, through: :workout_per_day_per_exercises
   belongs_to :exercise
 

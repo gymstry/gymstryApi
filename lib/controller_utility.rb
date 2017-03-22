@@ -23,6 +23,14 @@ module ControllerUtility
     }, status: :unprocessable_entity
   end
 
+  def user_needed
+    render json: { data: {
+        status: "Error",
+        error: "The user key is needed"
+      }
+    }, status: :unprocessable_entity
+  end
+
   def record_error
     render json: { data: {
         status: "Error"

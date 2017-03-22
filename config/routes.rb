@@ -110,7 +110,10 @@ Rails.application.routes.draw do
       end
       resources :trainers, only: [:index,:show,:destroy] do
         resources :exercises, only: [:index] do
-
+          collection do
+            get 'exercises-by-name', to: "exercises#exercises_by_name"
+            get 'exercises-available-user', to: "exercises#exercises_available_user"
+          end
         end
         resources :challanges, only: [:index] do
           collection do
@@ -188,6 +191,21 @@ Rails.application.routes.draw do
       resources :exercises do
         member do
           get 'add-images', to: "exercises#add_images"
+          get 'exercises-by-name', to: "exercises#exercises_by_name"
+          get 'exercises-by-ids', to: "exercises#exercises_by_ids"
+          get 'exercises-by-not-ids', to: "exercises#exercises_by_not_ids"
+          get 'exercises-with-images', to: "exercises#exercises_by_images"
+          get 'exercises-with-medical-records', to: "exercises#exercises_with_medical_records"
+          get 'exercises-with-routines', to: "exercises#exercises_with_routines"
+          get 'exercises-available-user', to: "exercises#exercises_available_user"
+        end
+      end
+
+      resources :workouts do
+        resources :exercises, only: [:index] do
+          collection do
+            get 'exercises-by-workout-per-day', to: "exercises#exercises_by_workout_per_day"
+          end
         end
       end
 

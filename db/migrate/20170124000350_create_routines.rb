@@ -5,8 +5,8 @@ class CreateRoutines < ActiveRecord::Migration[5.0]
       t.integer :repetition, :default => 12
       t.decimal :time, :default => 0
       t.decimal :rest, :default => 5
-      t.integer :level
-      t.references :exercise, foreign_key: true
+      t.integer :level, :null => false
+      t.references :exercise, foreign_key: true, on_delete: :restrict
 
       t.timestamps
     end

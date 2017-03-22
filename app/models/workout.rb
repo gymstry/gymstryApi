@@ -9,15 +9,15 @@ class Workout < ApplicationRecord
   scope :search_by_user_id, -> (id) {where(workouts:{user_id:id})}
   scope :search_by_trainer_id, -> (id) {where(workouts:{trainer_id:id})}
 
-  belongs_to :user
-  belongs_to :trainer
-  has_many :workout_per_day, -> {reorder("workout_per_days.name ASC")}, dependent: :destroy
-
   enum level:{
     :beginner => 0,
     :intermediate => 1,
     :advanced => 2
   }
+
+  belongs_to :user
+  belongs_to :trainer
+  has_many :workout_per_day, -> {reorder("workout_per_days.name ASC")}
 
   validates :name, :start_date, :end_date,:days,:level,presence: true
   validates :name, length: {minimum: 3}

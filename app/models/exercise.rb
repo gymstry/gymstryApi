@@ -9,9 +9,9 @@ class Exercise < ApplicationRecord
   scope :search_by_trainer, -> (id) {where(exercises:{branch_id: id})}
 
   has_many :images, as: :imageable, dependent: :destroy
-  has_many :prohibited_exercises, dependent: :destroy
+  has_many :prohibited_exercises
   has_many :medical_records, -> {(reorder("medical_records.created_at ASC"))}, through: :prohibited_exercises
-  has_many :routines, dependent: :destroy
+  has_many :routines
   belongs_to :trainer, optional: true
 
   #We need to add more groups
@@ -32,9 +32,9 @@ class Exercise < ApplicationRecord
   validates :muscle_group, inclusion: {in: muscle_groups.keys}
   validates :level, inclusion: {in: levels.keys}
 
-  def self.load_exercises(page = 1, per_page = 10)
+  def self.load_exercises(**args)
     includes(:images,medical_records: [:user],routines: [:workout_per_days])
-      .paginate(:page => page, :per_page => per_page)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
   def self.exercise_by_id(id)
@@ -42,53 +42,66 @@ class Exercise < ApplicationRecord
       find_by_id(id)
   end
 
-  def self.exercises_by_name(name,page = 1, per_page = 10)
-    load_exercises(page,per_page)
+  def self.exercises_by_name(name,**args)
+    load_exercises(args)
       .where("exercises.name LIKE ?", "#{name.downcase}%")
   end
 
-  def self.exercises_by_ids(ids,page = 1, per_page = 10)
-    load_exercises(page,per_page)
+  def self.exercises_by_ids(ids,**args)
+    load_exercises(args)
       .where(exercises: {id: ids})
   end
 
-  def self.exercises_by_not_ids(ids,page = 1 ,per_page = 10)
-    load_exercises(page,per_page)
+  def self.exercises_by_not_ids(ids,**args)
+    load_exercises(args)
       .where.not(exercises: {id: ids})
   end
 
-  def self.exercises_with_images(page = 1,per_page = 10)
+  def self.exercises_with_images(**args)
     joins(:pictures).select('exercises.*')
       .group("exercises.id")
-      .paginate(:page => page, :per_page =>per_page)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
       .reorder("count(pictures.id)")
   end
 
-  def self.exercises_with_medical_records(page = 1, per_page = 10)
+  def self.exercises_with_medical_records(**args)
     joins(:prohibited_exercises).select("exercises.*")
       .group("exercises.id")
-      .paginate(:page => page, :per_page => per_page)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
       .reorder("count(prohibited_exercises.id)")
   end
 
-  def self.exercises_with_routines(page = 1 ,per_page = 10)
+  def self.exercises_with_routines(**args)
     joins(:routines).select("exercies.*")
-      .group("exercies.id")
-      .paginate(:page => page, :per_page => per_page)
+      .group("exercises.id")
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
       .reorder("count(routines.id)")
   end
 
-  def self.exercises_with_medical_records_by_id(id, page = 1, per_page = 10)
-    load_exercises(page,per_page)
-      .where(prohibited_exercises: {medical_record_id: id})
-      .references(:prohibited_exercises)
+  def self.exercises_available_user(ids, **args)
+    exercises = unscoped.load_exercises({page: args[:page],per_page[:per_page]})
+    if args[:trainer]
+      exercises = exercises.where("exercises.owner = ? OR exercises.trainer_id = ?","admin",args[:trainer])
+    else
+      exercises = exercises.where("exercises.owner = ?", "admin")
+    end
+      exercises = exercises.where.not(prohibited_exercises: {exercise_id: ids})
+      exercises = exercises.references(:prohibited_exercises)
   end
 
-  def self.routines_with_workout_per_days(page = 1,per_page = 10)
-    joins(:workout_per_day_per_exercises)
-      .group("routines.id")
-      .paginate(:page => page, :per_page => per_page)
-      .reorder("count(workout_per_day_per_exercises.id)")
+  def self.exercises_by_workout(id,**args)
+    exercises = joins(routines: [:workout_per_days]).select("exercises.*")
+      .where(workout_per_days: {workout_id: id})
+      .group("exercises.id")
+    exercises_by_ids(exercises.ids,page,per_page)
+  end
+
+  def self.exercises_by_workout_per_day(id,**args)
+    exercises = joins(routines: [:workout_per_days ]).select("exercises.*")
+      .where(workout_per_days: {workout_id: id})
+      .where(workout_per_days: {order: args[:day]})
+      .group("exercises.id")
+    exercises_by_ids(exercises.ids,{page: args[:page],per_page: args[:per_page]})
   end
 
 end

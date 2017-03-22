@@ -12,7 +12,7 @@ class Gym < ActiveRecord::Base
   scope :order_by_birthday, -> (ord) {order("gyms.birthday #{ord}")}
   scope :order_by_created_at, -> (ord) {order("gyms.created_at #{ord}")}
 
-  has_many :branches, -> {reorder("branches.name ASC")}, dependent: :destroy
+  has_many :branches, -> {reorder("branches.name ASC")}
   has_many :images, as: :imageable, dependent: :destroy
   has_many :offers, dependent: :destroy
 
@@ -23,9 +23,9 @@ class Gym < ActiveRecord::Base
   validates :description, length: { in: 10...250 }
   validate :validate_speciality
 
-  def self.load_gyms(page = 1, per_page = 10)
+  def self.load_gyms(**args)
     includes(:images,branches: [:users,:trainers,:events])
-      .paginate(:page => page, :per_page => per_page)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
   def self.gym_by_id(id)
@@ -38,57 +38,57 @@ class Gym < ActiveRecord::Base
       .find_by_email(email)
   end
 
-  def self.gyms_by_name(name, page = 1, per_page = 10)
-    load_gyms(page,per_page)
+  def self.gyms_by_name(name, **args)
+    load_gyms(**args)
       .where("gyms.name LIKE ?", "#{name.downcase}")
   end
 
-  def self.gyms_by_speciality(speciality,page = 1, per_page = 10)
-    load_gyms(page,per_page)
+  def self.gyms_by_speciality(speciality,**args)
+    load_gyms(args)
       .where("\'#{speciality}\' = ANY (speciality)")
   end
 
-  def self.gyms_by_ids(ids,page = 1, per_page = 10)
-    load_gyms(page,per_page)
+  def self.gyms_by_ids(ids,**args)
+    load_gyms(args)
       .where(gyms:{id: ids})
   end
 
-  def self.gyms_by_not_ids(ids, page = 1, per_page = 10)
-    load_gyms(page,per_page)
+  def self.gyms_by_not_ids(ids, **args)
+    load_gyms(args)
       .where.not(gyms:{id: ids})
   end
 
-  def self.gyms_with_branches(page = 1, per_page = 10)
+  def self.gyms_with_branches(**args)
     joins(:branches).select("gyms.*")
       .select("COUNT(branches.id) AS count_branches")
       .group("gyms.id")
-      .paginate(:page => page, :per_page =>per_page)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
       .reorder("count(branches.id)")
   end
 
-  def self.gyms_with_pictures(page = 1, per_page = 10)
+  def self.gyms_with_pictures(**args)
     joins(:images).select("gyms.*")
       .select("COUNT(images.id) AS count_images")
       .group("gyms.id")
-      .paginate(:page => page, :per_page =>per_page)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
       .reorder("count(images.id)")
   end
 
-  def self.gyms_with_offers(page = 1, per_page = 10)
+  def self.gyms_with_offers(**args)
     joins(:offers).select("gyms.*")
       .select("COUNT(offers.id) AS count_offers")
       .group("gyms.id")
-      .paginate(:page => page,:per_page => per_page)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
       .reorder("count(offers.id)")
   end
 
-  def self.gyms_with_offers_and_date(type,page = 1 ,per_page = 10,year = 2017,month = 1)
+  def self.gyms_with_offers_and_date(type,**args)
     joins(:offers).select("gyms.*")
       .where(offers: {
-        end_day: Gym.new.set_range(type,year,month)
+        end_day: Gym.new.set_range(type,args[:year] || 2017,args[:month] || 1)
       })
       .group("gyms.id")
-      .paginate(:page => page,:per_page => per_page)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
   protected
