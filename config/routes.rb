@@ -27,6 +27,7 @@ Rails.application.routes.draw do
         end
       end
       resources :gyms, only: [:index,:show,:destroy] do
+        resources :images, only: [:index,:create,:update,:destroy]
         collection do
           get 'gym-by-email', to: "gyms#gym_by_email"
           get 'gyms-by-name', to: "gyms#gyms_by_name"
@@ -74,6 +75,7 @@ Rails.application.routes.draw do
           end
         end
         resources :users, only: [:index] do
+          resources :medical_record, only: [:index,:create]
           collection do
             get 'male', to: "users#users_male"
             get 'female', to: "users#users_female"
@@ -109,6 +111,12 @@ Rails.application.routes.draw do
         end
       end
       resources :trainers, only: [:index,:show,:destroy] do
+        resources :measurements, only: [:index] do
+          collection do
+            get 'measurements-by-date', to: "measurements#measurements_by_date"
+          end
+        end
+        resources :images, only: [:index,:create,:update,:destroy]
         resources :exercises, only: [:index] do
           collection do
             get 'exercises-by-name', to: "exercises#exercises_by_name"
@@ -142,6 +150,11 @@ Rails.application.routes.draw do
         end
       end
       resources :users, only: [:index,:show,:destroy] do
+        resources :measurements, only: [:index] do
+          collection do
+            get 'measurements-by-date', to: "measurements#measurements_by_date"
+          end
+        end
         resources :challanges, only: [:index,:create] do
           collection do
             get 'challenges-by-type', to: "challanges#challanges_by_type"
@@ -209,11 +222,59 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :medical_records, only: [] do
+      resources :food_days, only: [:index,:update,:show,:destroy] do
+        resources :foods, only: [:index]
+        collection do
+          get 'food-days-by-ids', to: "food_days#food_days_by_ids"
+          get 'food-days-by-not-ids', to: "food_days#food_days_by_not_ids"
+          get 'food-days-with-foods', to: "food_days#food_days_with_foods"
+          get 'food_days_by_type', to: "food_days#food_days_by_type"
+        end
+      end
+      resources :nutrition_routines do
+        resources :food_days, only: [:index,:create] do
+          collection do
+            get 'food_days_by_type', to: "food_days#food_days_by_type"
+          end
+        end
+      end
+
+      resources :medical_records, only: [:index,:show,:update,:destroy] do
+        collection do
+          get 'medical-records-by-ids', to: "medical_records#medical_records_by_ids"
+          get 'medical_records_by_not_ids', to: "medical_records#medical_records_by_not_ids"
+          get 'medical-records-with-diseases', to: "medical_records#medical_records_with_diseases"
+          get 'prohibited-exercises', to: "medical_records#medical_records_with_exercises"
+        end
         resources :disesases, only: [] do
           collection do
             get 'diseases-with-medical-records-by-id', to: "diseases#diseases_with_medical_records_by_id"
           end
+        end
+      end
+
+      resources :foods do
+        collection do
+          get 'foods-by-name', to: "foods#foods_by_name"
+          get 'foods-by-ids', to: "foods#foods_by_ids"
+          get 'foods-by-not-ids', to: "foods#foods_by_not_ids"
+          get 'foods-by-proteins-greater-than', to: "foods#foods_by_proteins_greater_than"
+          get 'foods-by-carbohydrates-greater-than', to: "foods#foods_by_carbohydrates_greater_than"
+          get 'foods-by-fats-greater-than', to: "foods#foods_by_fats_greater_than"
+          get 'foods-with-food-days', to: "foods#foods_with_food_days"
+        end
+      end
+
+      resources :images, only: [:index,:show] do
+        get 'images-by-ids', to: "images#images_by_ids"
+        get 'images-by-not-ids', to: "images#images_by_not_ids"
+      end
+
+      resources :measurements do
+        collection do
+          get 'measurements-by-ids', to: "measurements#measurements_by_ids"
+          get 'measurements-by-not-ids', to: "measurements#measurements_by_not_ids"
+          get 'measurements-by-date', to: "measurements#measurements_by_date"
         end
       end
 

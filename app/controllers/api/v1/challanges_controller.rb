@@ -62,7 +62,7 @@ class Api::V1::ChallangesController < ApplicationController
         @challenge.destroy
         head :no_content
       else
-          operation_not_allowed
+        operation_not_allowed
       end
     else
       record_not_found

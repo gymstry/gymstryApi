@@ -20,9 +20,9 @@ class Food < ApplicationRecord
   validates_processing_of :image
   validates :image, file_size: { less_than_or_equal_to: 1.megabyte }
 
-  def self.load_foods(page = 1, per_page = 10)
+  def self.load_foods(**args)
     includes(food_days: [:nutrition_routine])
-      .paginate(:page => page, :per_page =>per_page)
+      .paginate(:page => args[:page] || 1, :per_page =>args[:per_page] || 10)
   end
 
   def self.food_by_id(id)
@@ -30,47 +30,51 @@ class Food < ApplicationRecord
       .find_by_id(id)
   end
 
-  def self.foods_by_name(name)
-    load_foods(page,per_page)
+  def self.foods_by_name(name,**args)
+    load_foods(args)
       .where("foods.name LIKE ?", "#{name.downcase}%")
   end
 
-  def self.foods_by_ids(ids,page = 1, per_page = 10)
-    load_foods(page,per_page)
+  def self.foods_by_ids(ids,**args)
+    load_foods(**args)
       .where(foods:{id: ids})
   end
 
-  def self.foods_by_not_ids(ids,page = 1, per_page = 10)
-    load_foods(page,per_page)
+  def self.foods_by_not_ids(ids,**args)
+    load_foods(args)
       .where.not(foods:{id: ids})
   end
 
-  def self.foods_by_proteins_greater_than(proteins, page = 1, per_page = 10)
-    load_foods(page,per_page)
+  def self.foods_by_proteins_greater_than(proteins,**args)
+    load_foods(args)
       .where("foods.proteins > ?", proteins)
   end
 
-  def self.foods_by_carbohydrates_greater_than(carbohydrates, page = 1, per_page = 10)
-    load_foods(page,per_page)
+  def self.foods_by_carbohydrates_greater_than(carbohydrates, **args)
+    load_foods(args)
       .where("foods.carbohydrates > ?", carbohydrates)
   end
 
-  def self.foods_by_fats_greater_than(fats, page = 1, per_page = 10)
-    load_foods(page,per_page)
+  def self.foods_by_fats_greater_than(fats, **args)
+    load_foods(args)
       .where("foods.fats > ?", fats)
   end
 
-  def self.foods_with_food_days(page = 1, per_page = 10)
-    joins(:food_day_per_foods)
+  def self.foods_with_food_days(**args)
+    joins(:food_day_per_foods).select("foods.*")
       .group("foods.id")
-      .paginate(:page => page, :per_page => per_page)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page])
       .reorder("count(food_day_per_foods.id)")
   end
 
-  def self.foods_with_food_days_by_id(id, page = 1, per_page = 10)
-    load_foods(page,per_page)
-      .where(food_day_per_foods:{food_day_id: id})
-      .references(:food_day_per_foods)
+  def self.foods_with_food_days_by_food_id(id, **args)
+    joins(:food_day_per_foods).select("foods.*")
+      .group("foods.id")
+      .where(food_day_per_foods: {
+          food_day: id
+      })
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page])
+      .reorder("count(food_day_per_foods.id)")
   end
 
 end

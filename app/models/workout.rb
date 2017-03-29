@@ -117,10 +117,10 @@ class Workout < ApplicationRecord
 
   protected
   def valid_date
-    if start_date && start_date < Date.today
+    if !start_date && start_date < Date.today
       errors.add(:start_date, "can't be in the past")
     end
-    if start_date && end_date && start_date > end_date
+    if !start_date && !end_date && start_date > end_date
       errors.add(:end_date, "must be greater than start_date")
     end
   end

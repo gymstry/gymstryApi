@@ -86,7 +86,7 @@ class Event < ApplicationRecord
 
   protected
   def valid_date
-    if class_date && class_date < Date.today
+    if !class_date && class_date < Date.today
       errors.add(:class_date,"can't be in the past")
     end
   end

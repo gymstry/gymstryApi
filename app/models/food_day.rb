@@ -19,9 +19,9 @@ class FoodDay < ApplicationRecord
   validates :type_food, presence: true
   validates :type_food, inclusion: {in: type_foods.keys}
 
-  def self.load_food_days(page = 1,per_page = 10)
+  def self.load_food_days(**args)
     includes(:foods,nutrition_routine: [:user,:trainer])
-      .paginate(:page => page, :per_page => per_page)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
   def self.fodd_day_by_id(id)
@@ -29,18 +29,36 @@ class FoodDay < ApplicationRecord
       .find_by_id(id)
   end
 
-  def self.food_days_by_ids(ids, page = 1, per_page = 10)
-    load_food_days(page,per_page)
+  def self.food_days_by_ids(ids, **args)
+    load_food_days(args)
       .where(food_days: {id: ids})
   end
 
-  def self.food_days_by_not_ids(ids, page = 1, per_page = 10)
-    load_food_days(page,per_page)
+  def self.food_days_by_not_ids(ids, **args)
+    load_food_days(args)
       .where.not(food_days: {id: ids})
   end
 
-  def self.food_days_by_nutrition_routine(id, page = 1, per_page = 10)
-    load_food_days(page,per_page).search_by_nutrition_routine_id(id)
+  def self.food_days_by_type(type,**args)
+    food_days = load_food_days(args)
+    case type.downcase
+    when "breakfast"
+      food_days = food_days.breakfast
+    when "lunch"
+      food_days = food_days.lunch
+    when "dinner"
+      food_days = food_days.dinner
+    when "snack"
+      food_days = food_days.snack
+    else
+      food_days = food_days.breakfast
+    end
+    food_days
+  end
+
+  def self.food_days_by_nutrition_routine(id,**args)
+    load_food_days(args)
+      .search_by_nutrition_routine_id(id)
   end
 
   def self.food_days_with_foods(page = 1,per_page = 10)

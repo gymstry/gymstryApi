@@ -21,7 +21,7 @@ class Api::V1::EventsController < ApplicationController
 
   def show
     if @event
-      if statle?(@event,public: true)
+      if stale?(@event,public: true)
         render json: @event,status: :ok, :location => api_v1_event(@event)
       end
     else

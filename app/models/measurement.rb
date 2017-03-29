@@ -17,9 +17,9 @@ class Measurement < ApplicationRecord
   validates :weight,:hips,:chest,:body_fat_percentage,:waist,presence: true
   validates :weight,:hips,:chest,:body_fat_percentage,:waist,numericality: { greater_than_or_equal: 0}
 
-  def self.load_measurements(page = 1, per_page = 10)
+  def self.load_measurements(**args)
     includes(user: [:medical_record,:challanges,:workouts],trainer: [:challanges,:qualifications,:workouts])
-      .paginate(:page => page, :per_page => per_page)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
   def self.measurement_by_id(id)
@@ -27,28 +27,48 @@ class Measurement < ApplicationRecord
       .find_by_id(id)
   end
 
-  def self.measurements_by_trainer(trainer, page = 1 ,per_page = 10)
-    load_measurements(page,per_page).search_by_trainer_id(trainer)
+  def self.measurements_by_ids(ids,**args)
+    load_measurements(args)
+      .where(measurements:{
+        id: ids
+      })
   end
 
-  def self.measurements_by_user(user, page = 1 ,per_page = 10)
-    load_measurements(page,per_page).search_by_user_id(user)
+  def self_measurements_by_not_ids(ids,**args)
+    load_measurements(args)
+      .where.not(measurements:{
+        id: ids
+      })
   end
 
-  def self.measurements_by_date(type,page = 1, per_page = 10, year = 2017, month = 1)
-    load_measurements(page,per_page)
-      .where(measurements:{created_at: Measurement.new.set_range(type,year,month)})
+  def self.measurements_by_trainer(trainer, **args)
+    load_measurements(args).search_by_trainer_id(trainer)
   end
 
-  def self.measurements_by_date_and_user(user,type,page = 1, per_page = 10, year = 2017, month = 1)
-    load_measurements(page,per_page)
-      .where(measurements:{created_at: Measurement.new.set_range(type,year,month)})
+  def self.measurements_by_user(user, **args)
+    load_measurements(args).search_by_user_id(user)
+  end
+
+  def self.measurements_by_date(type,**args)
+    load_measurements({page: args[:page],per_page: args[:per_page]})
+      .where(measurements:{
+        created_at: Measurement.new.set_range(type,args[:year] || 2017,args[:month] || 1)
+      })
+  end
+
+  def self.measurements_by_date_and_user(user,**args)
+    load_measurements({page: args[:page],per_page: args[:per_page]})
+      .where(measurements:{
+        created_at: Measurement.new.set_range(args[:type],args[:year] || 2017,args[:month] || 1)
+      })
       .search_by_user_id(user)
   end
 
-  def self.measurements_by_data_and_trainer(trainer,type, page =1 ,per_page = 10, year = 2017, month = 1)
-    load_measurements(page,per_page)
-      .where(measurements:{created_at: Measurement.new.set_range(type,year,month)})
+  def self.measurements_by_data_and_trainer(trainer,**args)
+    load_measurements({page: args[:page],per_page: args[:per_page]})
+      .where(measurements:{
+        created_at: Measurement.new.set_range(args[:type],args[:year] || 2017,args[:month] || 1)
+      })
       .search_by_trainer_id(trainer)
   end
 
