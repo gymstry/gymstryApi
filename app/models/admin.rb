@@ -3,6 +3,7 @@ class Admin < ActiveRecord::Base
   devise :database_authenticatable, :registerable,
           :recoverable, :rememberable, :trackable, :validatable
   include DeviseTokenAuth::Concerns::User
+  #searchkick
 
   default_scope {order("admins.name ASC")}
   scope :order_by_name, -> (ord) {order("admins.name #{ord}")}
@@ -15,11 +16,15 @@ class Admin < ActiveRecord::Base
   validates :email,:username, uniqueness: true
 
   def self.load_admins(**args)
-    paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
+    select(args[:admin_params] || "admins.*")
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
-  def self.admin_by_id(id)
-    find_by_id(id)
+  def self.admin_by_id(id,**args)
+    params = args[:admin_params] || "admins.*"
+    params = params + "admins.updated_at, admins.id"
+    select(parasm)
+      .find_by_id(id)
   end
 
   def self.admins_by_ids(ids,**args)
@@ -32,16 +37,9 @@ class Admin < ActiveRecord::Base
       .where.not(admins:{id: ids})
   end
 
-  def self.admin_by_email(email)
-    find_by_email(email)
+  def self.admins_by_search(search,**args)
+      load_admins(args)
+        .where("admins.name LIKE ? or admins.username LIKE ? or admins.email LIKE ?","#{search.downcase}%","#{search.downcase}%","#{search.downcase}%")
   end
 
-  def self.admin_by_username(username)
-    find_by_username(username)
-  end
-
-  def self.admin_by_name(name,**args)
-    load_admins(args)
-      .where("admins.name LIKE ?", "#{name.downcase}%")
-  end
 end

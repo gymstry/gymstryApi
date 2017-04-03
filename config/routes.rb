@@ -4,9 +4,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :admins, only: [:show,:index,:destroy] do
         collection  do
-          get 'admin-by-email', to: "admins#admin_by_email"
-          get 'admin-by-username', to: "admins#admin_by_username"
-          get 'admins-by-name', to: "admins#admins_by_name"
+          get 'admins-by-search', to: "admins#admins_by_search"
           get 'admins-by-ids', to: "admins#admins_by_ids"
           get 'admins-by-not-ids', to: "admins#admins_by_not_ids"
         end
@@ -21,9 +19,19 @@ Rails.application.routes.draw do
           end
         end
         resources :trainers, only: []  do
-          match 'challenges-by-start-date', to: "challanges#challanges_by_start_date", via: [:get]
-          match 'challenges-by-end_date', to: "challanges#challanges_by_end_date", via: [:get]
-          match 'challenges', to: "challanges#challanges", via: [:get]
+          resources :nutrition_routines, only: [:index] do
+            collection do
+              get 'nutrition-routines-by-start-date', to: "nutrition_routines#nutrition_routines_by_start_date"
+              get 'nutrition-routines-by-end-date', to: "nutrition_routines#nutrition_routines_by_end_date"
+            end
+          end
+          resources :challanges, only: [:index] do
+            collection do
+              get 'challenges-by-start-date', to: "challanges#challanges_by_start_date"
+              get 'challenges-by-end_date', to: "challanges#challanges_by_end_date"
+            end
+          end
+          #match 'challenges', to: "challanges#challanges", via: [:get]
         end
       end
       resources :gyms, only: [:index,:show,:destroy] do
@@ -41,7 +49,7 @@ Rails.application.routes.draw do
         end
         resources :branches, only: [:index] do
           collection do
-            get 'branch-by-email', to: "branches#branch-by-email"
+            get 'branches-by-search', to: "branches#branches_by_search"
             get 'branches-with-events', to: "branches#branches_with_events"
             get 'branches-with-trainers', to: "branches#branches_with_trainers"
             get 'branches-with-timetables', to: "branchs#branches_with_timetables"
@@ -67,7 +75,7 @@ Rails.application.routes.draw do
         end
         resources :events, only: [:index] do
           collection do
-            get 'events-by-name', to: "events#events_by_name"
+            get 'events-by-search', to: "events#events_by_search"
             get 'events-by-date', to: "events#events_by_date"
             get 'events-by-type-event-and-date', to: "events#events_by_type_event_and_date"
             get 'events-by-type-event', to: "events#events_by_type_event"
@@ -88,29 +96,36 @@ Rails.application.routes.draw do
             get 'users-with-nutrition-routines', to: "users#users_with_nutrition_routines"
             get 'users-with-workouts', to: "users#users_with_workouts"
           end
-
         end
         collection do
-          get 'branch-by-email', to: "branches#branch_by_email"
+          get 'branches-by-search', to: "branches#branches_by_search"
           get 'branches-by-ids', to: "branches#branches_by_ids"
           get 'branches-by-not-ids', to: "branches#branches_by_not_ids"
           get 'branches-with-events', to: "branches#branches_with_events"
           get 'branches-with-trainers', to: "branches#branches_with_trainers"
-          get 'branches-with-timetables', to: "branchs#branches_with_timetables"
+          get 'branches-with-timetables', to: "branches#branches_with_timetables"
           get 'branches-with-users', to: "branches#branches_with_users"
           get 'branches-with-events-date', to: "branches#branches_with_events_range"
         end
       end
       resources :events do
         collection do
-          get 'events-by-name', to: "events#events_by_name"
+          get 'events-by-search', to: "events#events_by_search"
           get 'events-by-ids', to: "events#events_by_ids"
           get 'events-by-not-ids', to: "events#events_by_not_ids"
           get 'events-by-date', to: "events#events_by_date"
           get 'events-by-type-event', to: "events#events_by_type_event"
+          get 'events-by-type-event-and-date', to: "events#events_by_type_event_and_date"
+
         end
       end
       resources :trainers, only: [:index,:show,:destroy] do
+        resources :nutrition_routines, only: [:index] do
+          collection do
+            get 'nutrition-routines-by-start-date', to: "nutrition_routines#nutrition_routines_by_start_date"
+            get 'nutrition-routines-by-end-date', to: "nutrition_routines#nutrition_routines_by_end_date"
+          end
+        end
         resources :measurements, only: [:index] do
           collection do
             get 'measurements-by-date', to: "measurements#measurements_by_date"
@@ -129,7 +144,7 @@ Rails.application.routes.draw do
             get 'challenges-by-state', to: "challanges#challanges_by_state"
             get 'challenges-by-start-date',to: "challanges#challanges_by_start_date"
             get 'challenges-by-end-date', to: "challanges#challanges_by_end_date"
-            get 'challenges', to: "challanges#challanges"
+            #get 'challenges', to: "challanges#challanges"
           end
         end
         collection do
@@ -150,6 +165,12 @@ Rails.application.routes.draw do
         end
       end
       resources :users, only: [:index,:show,:destroy] do
+        resources :nutrition_routines, only: [:index,:create] do
+          collection do
+            get 'nutrition-routines-by-start-date', to: "nutrition_routines#nutrition_routines_by_start_date"
+            get 'nutrition-routines-by-end-date', to: "nutrition_routines#nutrition_routines_by_end_date"
+          end
+        end
         resources :measurements, only: [:index] do
           collection do
             get 'measurements-by-date', to: "measurements#measurements_by_date"
@@ -161,7 +182,7 @@ Rails.application.routes.draw do
             get 'challenges-by-state', to: "challanges#challanges_by_state"
             get 'challenges-by-start-date',to: "challanges#challanges_by_start_date"
             get 'challenges-by-end-date', to: "challanges#challanges_by_end_date"
-            get 'challenges', to: "challanges#challanges"
+            #get 'challenges', to: "challanges#challanges"
           end
         end
         collection do
@@ -185,7 +206,7 @@ Rails.application.routes.draw do
         collection do
           get 'challenges-by-ids', to: "challanges#challanges_by_ids"
           get 'challenges-by-not-ids', to: "challanges#challanges_by_not_ids"
-          get 'challenges-by-name', to: "challanges#challanges_by_name"
+          get 'challenges-by-search', to: "challanges#challanges_by_search"
           get 'challenges-by-type', to: "challanges#challanges_by_type"
           get 'challenges-by-state', to: "challanges#challanges_by_state"
           get 'challenges-by-start-date',to: "challanges#challanges_by_start_date"
@@ -194,9 +215,9 @@ Rails.application.routes.draw do
       end
       resources :diseases do
         collection do
-          get 'diseases-by-name', to: "diseases#diseases_by_name"
+          get 'diseases-by-search', to: "diseases#diseases_by_search"
           get 'diseases-by-ids', to: "diseases#diseases_by_ids"
-          get 'diseases_by_not_ids', to: "diseases#diseases_by_not_ids"
+          get 'diseases-by-not-ids', to: "diseases#diseases_by_not_ids"
           get 'diseases-with-medical-records', to: "diseases#diseases_with_medical_records"
         end
       end
@@ -204,10 +225,12 @@ Rails.application.routes.draw do
       resources :exercises do
         member do
           get 'add-images', to: "exercises#add_images"
-          get 'exercises-by-name', to: "exercises#exercises_by_name"
+        end
+        collection do
+          get 'exercises-by-search', to: "exercises#exercises_by_search"
           get 'exercises-by-ids', to: "exercises#exercises_by_ids"
           get 'exercises-by-not-ids', to: "exercises#exercises_by_not_ids"
-          get 'exercises-with-images', to: "exercises#exercises_by_images"
+          get 'exercises-with-images', to: "exercises#exercises_with_images"
           get 'exercises-with-medical-records', to: "exercises#exercises_with_medical_records"
           get 'exercises-with-routines', to: "exercises#exercises_with_routines"
           get 'exercises-available-user', to: "exercises#exercises_available_user"
@@ -231,7 +254,14 @@ Rails.application.routes.draw do
           get 'food_days_by_type', to: "food_days#food_days_by_type"
         end
       end
-      resources :nutrition_routines do
+      resources :nutrition_routines, only: [:index,:show,:update,:destroy] do
+        collection do
+          get 'nutrition-routines-by-name', to: "nutrition_routines#nutrition_routines_by_name"
+          get 'nutrition-routines-by-ids', to: "nutrition_routines#nutrition_routines_by_ids"
+          get 'nutrition-routines-by-not-ids',to: "nutrition_routines#nutrition_routines_by_not_ids"
+          get 'nutrition-routines-by-start-date', to: "nutrition_routines#nutrition_routines_by_start_date"
+          get 'nutrition-routines-by-end-date', to: "nutrition_routines#nutrition_routines_by_end_date"
+        end
         resources :food_days, only: [:index,:create] do
           collection do
             get 'food_days_by_type', to: "food_days#food_days_by_type"
@@ -277,7 +307,6 @@ Rails.application.routes.draw do
           get 'measurements-by-date', to: "measurements#measurements_by_date"
         end
       end
-
     end
   end
 
@@ -293,9 +322,8 @@ Rails.application.routes.draw do
     registrations: 'overrides/registrations_gym_and_trainer'
   }
 
-  mount_devise_token_auth_for 'User', at: 'api/v1/auth', controllers: {
+  mount_devise_token_auth_for 'User', at: 'api/v1/auth', skip:[:omniauth_callbacks], controllers: {
     registrations:  'overrides/registrations',
-    omniauth_callbacks: 'overrides/omniauth_callbacks'
   }
   mount_devise_token_auth_for 'Admin', at: 'api/v1/admin_auth', skip: [:omniauth_callbacks, :confirmations]
 

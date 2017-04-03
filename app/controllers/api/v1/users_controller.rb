@@ -176,7 +176,7 @@ class Api::V1::UsersController < ApplicationController
 
   private
     def set_user
-      @user = User.branch_by_id(params[:id])
+      @user = User.user_by_id(params[:id])
     end
 
     def user_pagination

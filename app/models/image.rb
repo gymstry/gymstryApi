@@ -14,7 +14,7 @@ class Image < ApplicationRecord
 
   def self.load_images(**args)
     includes(:imageable)
-      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
+    .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
   def self.images_by_gym(gym,**args)

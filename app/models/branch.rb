@@ -25,33 +25,19 @@ class Branch < ActiveRecord::Base
   validates :address, length: {minimum: 3}
 
   def self.load_branches(**args)
-    includes(:timetables,:events,gym: [:images],users: [:medical_record,:challanges,:workouts,:nutrition_routines],trainers: [:qualifications,:challanges,:workouts,:nutrition_routines])
-      .paginate(:page => args[:page] || 1, :per_page => args[:per_page])
+      params = (args[:branch_params] || "branches.*") + ","
+      params = params + "branches.gym_id, branches.id"
+      includes(:timetables,:events,gym: [:images],users: [:medical_record,:challanges,:workouts,:nutrition_routines],trainers: [:qualifications,:challanges,:workouts,:nutrition_routines])
+      .select(params)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
-  def self.branch_by_id(id)
+  def self.branch_by_id(id,**args)
+    params = (args[:branch_params] || "branches.*") + ","
+    params = params + "branches.gym_id, branches.id, branches.updated_at"
     includes(:timetables,:events,gym: [:images],users: [:medical_record,:challanges,:workouts,:nutrition_routines],trainers: [:qualifications,:challanges,:workouts,:nutrition_routines])
+      .select(params)
       .find_by_id(id)
-  end
-
-  def self.branch_by_email(email)
-    includes(:timetables,:events,gym: [:images],users: [:medical_record,:challanges,:workouts,:nutrition_routines],trainers: [:qualifications,:challanges,:workouts,:nutrition_routines])
-      .find_by_email(email)
-  end
-
-  def self.branch_by_email_and_gym_id(gym_id,email)
-    includes(:timetables,:events,gym: [:images],users: [:medical_record,:challanges,:workouts,:nutrition_routines],trainers: [:qualifications,:challanges,:workouts,:nutrition_routines])
-      .find_by_gym_id_and_email(gym_id,email)
-  end
-
-  def self.branches_by_name(name,**args)
-    load_branches(args)
-      .where("branches.name LIKE ?", "#{name.downcase}%")
-  end
-
-  def self.branches_by_name_and_gym_id(gym_id,**args)
-    branches_by_name(args[:name],{page: args[:page],per_page: args[:per_page]})
-      .search_by_gym_id(gym_id)
   end
 
   def self.branches_by_gym_id(gym_id,**args)
@@ -68,60 +54,64 @@ class Branch < ActiveRecord::Base
       .where.not(branches: {id: ids})
   end
 
+  def self.branches_by_search(search,**args)
+    load_branches(args)
+      .where("branches.name LIKE ? or branches.email LIKE ?","#{search.downcase}%","#{search.downcase}%")
+  end
+
   def self.branches_with_events(**args)
-    joins(:events).select('branches.*')
-      .select("COUNT(events.id AS count_events)")
-      .group("brances.id")
+    joins(:events).select(args[:branch_params] || "branches.*")
+      .select("COUNT(events.id) AS count_events")
+      .group("branches.id")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
       .reorder("count(events.id)")
   end
 
   def self.branches_with_trainers(**args)
-    joins(:trainers).select('branches.*')
-      .select("COUNT(trainers.id AS count_trainers)")
+    joins(:trainers).select(args[:branch_params] || "branches.*")
+      .select("COUNT(trainers.id) AS count_trainers")
       .group("branches.id")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
       .reorder("count(trainers.id)")
   end
 
   def self.branches_with_users(**args)
-    joins(:users).select('branches.*')
-      .select("COUNT(users.id AS count_users)")
+    joins(:users).select(args[:branch_params] || "branches.*")
+    .select("COUNT(users.id) AS count_users")
       .group("branches.id")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
       .reorder("count(users.id)")
   end
 
   def self.branches_with_timetables(**args)
-    joins(:timetables).select("branches.*")
+    joins(:timetables).select(args[:branch_params] || "branches.*")
       .group("branches.id")
       .paginate(:page => args[:page] || 1,:per_page => args[:per_page] || 10)
       .reorder("count(timetables.id)")
   end
 
+
   def self.brances_with_events_by_range(type,**args)
-    branches_with_events_by_date(Branch.new.set_range(type,args[:year] || 2017,args[:month] || 1),{page: args[:page],per_page: args[:per_page]})
+    branches_with_events_by_date(Branch.new.set_range(type,args[:year],args[:month]),{page: args[:page],per_page: args[:per_page],branch_params: args[:branch_params]})
   end
 
   def self.branches_with_events_by_range_and_gym(gym_id,**args)
-    branches_with_events_by_date_by_gym(gym_id,{range: Branch.new.set_range(args[:type],args[:year] || 2017,args[:month] || 1),page: args[:page],per_page: args[:per_page]})
+     branches_with_events_by_date_by_gym(gym_id,{range: Branch.new.set_range(args[:type],args[:year],args[:month]),page: args[:page],per_page: args[:per_page],branch_params: args[:branch_params]})
   end
 
   protected
 
   def self.branches_with_events_by_date(range,**args)
-    load_branches(args)
-      .where(events: {class_date: range})
-      .paginate(:page => page, :per_page => per_page)
-      .references(:events)
+    joins(:events).select(args[:branch_params] || "branches.*")
+       .where(events: {class_date: range})
+       .paginate(:page => args[:page] || 1, :per_page => args[:per_page || 10])
   end
 
   def self.branches_with_events_by_date_by_gym(gym_id,**args)
-    load_branches({page: args[:page],per_page: args[:per_page]})
-      .where(events: {class_date: args[:range]})
-      .search_by_gym_id(gym_id)
-      .paginate(:page => page, :per_page => per_page)
-      .references(:events)
-  end
+    joins(:events).select(args[:branch_params] || "branches.*")
+       .where(events: {class_date: args[:range]})
+       .search_by_gym_id(gym_id)
+       .paginate(:page => args[:page] || 1, :per_page => args[:per_page || 10])
+ end
 
 end

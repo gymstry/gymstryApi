@@ -3,26 +3,26 @@ class Api::V1::ExercisesController < ApplicationController
   devise_token_auth_group :member,contains: [:admin,:trainer]
   before_action :authenticate_member!, only: [:create,:update,:add_images,:destroy]
   before_action :set_exercise, only: [:show,:update,:destroy,:add_images]
-  before_action only: [:index,:exercises_by_name,:exercises_by_ids,:exercises_by_not_ids,:exercises_with_images,:exercises_with_medical_records,:exercises_with_routines,:exercises_available_user,:exercises_by_workout_per_day] do
+  before_action only: [:index,:exercises_by_search,:exercises_by_ids,:exercises_by_not_ids,:exercises_with_images,:exercises_with_medical_records,:exercises_with_routines,:exercises_available_user,:exercises_by_workout_per_day] do
     set_pagination(params)
   end
 
   def index
     if params.has_key?(:trainer_id)
-      @exercises = Exercise.unscoped.load_exercises(exercise_pagination)
+      @exercises = Exercise.unscoped.load_exercises(exercise_pagination.merge(exercise_params: params[:exercise_params]))
         .search_by_trainer(params[:trainer_id])
     elsif params.has_key?(:workout_id)
-      @exercises = Exercise.exercises_by_workout(params[:workout_id],exercise_pagination)
+      @exercises = Exercise.exercises_by_workout(params[:workout_id],exercise_pagination.merge(exercise_params: params[:exercise_params]))
     else
-      @exercises = Exercise.load_exercises(exercise_pagination)
+      @exercises = Exercise.load_exercises(exercise_pagination.merge(exercise_params: params[:exercise_params]))
     end
-    render json: @exercises, status: :ok
+    render json: @exercises, status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
   end
 
   def show
     if @exercise
       if stale?(@exercise,public: true)
-        render json: @exercise,status: :ok,:location => api_v1_exercy(@exercise)
+        render json: @exercise,status: :ok,:location => api_v1_exercy_path(@exercise),root: "data", serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
       end
     else
       record_not_found
@@ -37,7 +37,7 @@ class Api::V1::ExercisesController < ApplicationController
       @exercise.owner = "trainer"
     end
     if @exercise.save
-      render json: @exercise,status: :ok,:location => api_v1_exercy(@exercise)
+      render json: @exercise,status: :ok,:location => api_v1_exercy_path(@exercise),root: "data", serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
     else
       record_errors(@exercise)
     end
@@ -47,7 +47,7 @@ class Api::V1::ExercisesController < ApplicationController
     if @exercise
       if current_member.is_a?(Admin) || (current_member.id == @exercise.trainer_id)
         if @exercise.update(exercise_params)
-          render json: @exercise,status: :ok,:location => api_v1_exercy(@exercise)
+          render json: @exercise,status: :ok,:location => api_v1_exercy_path(@exercise),root: "data", serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
         else
           record_errors(@exercise)
         end
@@ -99,39 +99,43 @@ class Api::V1::ExercisesController < ApplicationController
     end
   end
 
-  def exercises_by_name
-    if params.has_key?(:trainer_id)
-      @exercises = Exercise.exercises_by_name(params[:name] || "",exercise_pagination)
-        .search_by_trainer(params[:trainer_id])
+  def exercises_by_search
+    if params.has_key?(:q)
+      if params.has_key?(:trainer_id)
+        @exercises = Exercise.exercises_by_search(params[:q],exercise_pagination.merge(exercise_params: params[:exercise_params]))
+          .search_by_trainer(params[:trainer_id])
+      else
+        @exercises = Exercise.exercises_by_search( params[:q],exercise_pagination.merge(exercise_params: params[:exercise_params]))
+      end
+      render json: @exercises,status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
     else
-      @exercises = Exercise.exercises_by_name( params[:name] || "",exercise_pagination)
+      q_not_found
     end
-    render json: @exercises,status: :ok
   end
 
   def exercises_by_ids
-    @exercises = Exercises.exercises_by_ids(set_ids,exercise_pagination)
-    render json: @exercises,status: :ok
+    @exercises = Exercise.exercises_by_ids(set_ids,exercise_pagination.merge(exercise_params: params[:exercise_params]))
+    render json: @exercises,status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
   end
 
   def exercises_by_not_ids
-    @exercises = Exercise.exercises_by_not_ids(set_ids,exercise_pagination)
-    render json: @exercises,status: :ok
+    @exercises = Exercise.exercises_by_not_ids(set_ids,exercise_pagination.merge(exercise_params: params[:exercise_params]))
+    render json: @exercises,status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
   end
 
   def exercises_with_images
-    @exercises = Exercises.exercises_with_images(exercise_pagination)
-    render json: @exercises,status: :ok
+    @exercises = Exercise.exercises_with_images(exercise_pagination.merge(exercise_params: params[:exercise_params]))
+    render json: @exercises,status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
   end
 
   def exercises_with_medical_records
-    @exercises = Exercises.exercises_with_medical_records(exercise_pagination)
-    render json: @exercises,status: :ok
+    @exercises = Exercise.exercises_with_medical_records(exercise_pagination.merge(exercise_params: params[:exercise_params]))
+    render json: @exercises,status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
   end
 
   def exercises_with_routines
-    @exercises = Exercises.exercises_with_medical_records(exercise_pagination)
-    render json: @exercises,status: :ok
+    @exercises = Exercise.exercises_with_medical_records(exercise_pagination.merge(exercise_params: params[:exercise_params]))
+    render json: @exercises,status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
   end
 
   def exercises_available_user
@@ -143,19 +147,19 @@ class Api::V1::ExercisesController < ApplicationController
       end
       ids ||= []
       if params.has_key?(:trainer_id)
-        @exercises = Exercise.exercises_available_user(ids,exercise_pagination.merge({trainer: params[:trainer_id]}))
+        @exercises = Exercise.exercises_available_user(ids,exercise_pagination.merge({trainer: params[:trainer_id]}).merge(exercise_params: params[:exercise_params]))
       else
-        @exercises = Exercise.exercises_available_user(ids,exercise_pagination)
+        @exercises = Exercise.exercises_available_user(ids,exercise_pagination.merge(exercise_params: params[:exercise_params]))
       end
-      render json: @exercises,status: :ok
+      render json: @exercises,status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
     else
       user_needed
     end
   end
 
   def exercises_by_workout_per_day
-    @exercises = Exercise.exercises_by_workout_per_day(params[:workout_id],exercise_pagination.merge({day: params[:day] || 0}))
-    render json: @exercises,status: :ok
+    @exercises = Exercise.exercises_by_workout_per_day(params[:workout_id],exercise_pagination.merge({day: params[:day]}).merge(exercise_params: params[:exercise_params]))
+    render json: @exercises,status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
   end
 
   protected
@@ -172,8 +176,8 @@ class Api::V1::ExercisesController < ApplicationController
     {page: @page,per_page: @per_page}
   end
 
-  def set_exercy
-    @exercise = Exercise.exercise_by_id(params[:id])
+  def set_exercise
+    @exercise = Exercise.exercise_by_id(params[:id],{exercise_params: params[:exercise_params]})
   end
 
   def exercise_params

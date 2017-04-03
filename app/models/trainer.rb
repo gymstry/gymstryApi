@@ -48,12 +48,14 @@ class Trainer < ActiveRecord::Base
 
   def self.load_trainers(**args)
     includes(:exercises,:qualifications,challanges: [:user],measurements: [:user],workouts: [:user])
-      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
+    .select(args[:trainer_params] || "trainers.*")
+    .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
   def self.trainer_by_id(id)
     includes(:exercises,:qualifications,challanges: [:user],measurements: [:user],workouts: [:user])
-      .find_by_id(id)
+    .select(args[:trainer_params] || "trainers.*")
+    .find_by_id(id)
   end
 
   def self.trainers_by_ids(ids, **args)
@@ -102,7 +104,7 @@ class Trainer < ActiveRecord::Base
   end
 
   def self.trainers_with_qualifications(**args)
-    joins(:qualifications).select("trainers.*")
+    joins(:qualifications).select(args[:trainer_params] || "trainers.*")
       .select("COUNT(qualifications.id) AS count_qualifications")
       .group("trainers.id")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
@@ -110,7 +112,7 @@ class Trainer < ActiveRecord::Base
   end
 
   def self.trainers_with_challanges(**args)
-    joins(:challanges).select("trainers.*")
+    joins(:challanges).select(args[:trainer_params] || "trainers.*")
       .select("COUNT(challanges.id) AS count_challenges")
       .group("trainers.id")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
@@ -118,7 +120,7 @@ class Trainer < ActiveRecord::Base
   end
 
   def self.trainers_with_measurements(**args)
-    joins(:measurements).select("trainers.*")
+    joins(:measurements).select(args[:trainer_params] || "trainers.*")
       .select("COUNT(measurements.id) AS count_measurements")
       .group("trainers.id")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
@@ -126,7 +128,7 @@ class Trainer < ActiveRecord::Base
   end
 
   def self.trainers_with_nutrition_routines(**args)
-    joins(:nutrition_routines).select("trainers.*")
+    joins(:nutrition_routines).select(args[:trainer_params] || "trainers.*")
       .select("COUNT(nutrition_routines.id) AS count_nutrition_routines")
       .group("trainers.id")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
@@ -134,7 +136,7 @@ class Trainer < ActiveRecord::Base
   end
 
   def self.trainers_with_workouts(**args)
-    joins(:workouts).select("trainers.*")
+    joins(:workouts).select(args[:trainer_params] || "trainers.*")
       .select("COUNT(workouts.id) AS count_workouts")
       .group("trainers.id")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)

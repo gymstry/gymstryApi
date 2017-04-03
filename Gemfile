@@ -30,6 +30,9 @@ group :development, :test do
   gem 'capistrano-rails',   require: false
   gem 'capistrano-bundler', require: false
   gem 'capistrano3-puma',   require: false
+  gem 'rspec-rails', '~> 3.5'
+  gem "factory_girl_rails", "~> 4.0"
+  gem 'faker', branch: 'master' , git: 'https://github.com/stympy/faker.git'
 end
 
 group :development do
@@ -64,3 +67,13 @@ gem 'mini_magick'
 
 #file validator
 gem 'file_validators'
+
+#serializers
+gem 'active_model_serializers'
+
+#for testing
+gem 'database_cleaner'
+
+
+#search motor
+#gem 'searchkick'

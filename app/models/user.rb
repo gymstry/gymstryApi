@@ -45,7 +45,8 @@ class User < ActiveRecord::Base
 
   def self.load_users(**args)
     includes(:medical_record,challanges: [:trainer],measurements: [:trainer],workouts: [:trainer])
-      .paginate(:page => args[:page] || 1,:per_page => args[:per_page] || 10)
+    .select(args[:user_params] || "users.*")
+    .paginate(:page => args[:page] || 1,:per_page => args[:per_page] || 10)
   end
 
   def self.load_users_by_branch(branch_id,**args)
@@ -55,7 +56,8 @@ class User < ActiveRecord::Base
 
   def self.user_by_id(id)
     includes(:medical_record,challanges: [:trainer],measurements: [:trainer],workouts: [:trainer])
-      .find_by_id(id)
+    .select(args[:user_params] || "users.*")
+    .find_by_id(id)
   end
 
   def self.users_by_ids(ids, **args)
@@ -70,7 +72,7 @@ class User < ActiveRecord::Base
 
   def self.user_by_email(email)
     includes(:medical_record,challanges: [:trainer],measurements: [:trainer],workouts: [:trainer])
-      .find_by_email(email)
+    .select(args[:user_params] || "users.*").find_by_email(email)
   end
 
   def self.user_by_username(username)

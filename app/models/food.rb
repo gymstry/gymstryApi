@@ -22,11 +22,13 @@ class Food < ApplicationRecord
 
   def self.load_foods(**args)
     includes(food_days: [:nutrition_routine])
+      .select(args[:food_params] ||  "foods.*")
       .paginate(:page => args[:page] || 1, :per_page =>args[:per_page] || 10)
   end
 
   def self.food_by_id(id)
     includes(food_days: [:nutrition_routine])
+      .select(args[:food_params] ||  "foods.*")
       .find_by_id(id)
   end
 
@@ -61,14 +63,14 @@ class Food < ApplicationRecord
   end
 
   def self.foods_with_food_days(**args)
-    joins(:food_day_per_foods).select("foods.*")
+    joins(:food_day_per_foods).select(args[:food_params] ||  "foods.*")
       .group("foods.id")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page])
       .reorder("count(food_day_per_foods.id)")
   end
 
   def self.foods_with_food_days_by_food_id(id, **args)
-    joins(:food_day_per_foods).select("foods.*")
+    joins(:food_day_per_foods).select(args[:food_params] ||  "foods.*")
       .group("foods.id")
       .where(food_day_per_foods: {
           food_day: id

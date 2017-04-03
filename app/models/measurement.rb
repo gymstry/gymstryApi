@@ -19,11 +19,13 @@ class Measurement < ApplicationRecord
 
   def self.load_measurements(**args)
     includes(user: [:medical_record,:challanges,:workouts],trainer: [:challanges,:qualifications,:workouts])
+      .select(args[:measurement_params] || "measurements.*")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
   def self.measurement_by_id(id)
     includes(user: [:medical_record,:challanges,:workouts],trainer: [:challanges,:qualifications,:workouts])
+      .select(args[:measurement_params] || "measurements.*")
       .find_by_id(id)
   end
 
@@ -50,14 +52,14 @@ class Measurement < ApplicationRecord
   end
 
   def self.measurements_by_date(type,**args)
-    load_measurements({page: args[:page],per_page: args[:per_page]})
+    load_measurements({page: args[:page],per_page: args[:per_page],measurement_params: args[:measurement_params]})
       .where(measurements:{
         created_at: Measurement.new.set_range(type,args[:year] || 2017,args[:month] || 1)
       })
   end
 
   def self.measurements_by_date_and_user(user,**args)
-    load_measurements({page: args[:page],per_page: args[:per_page]})
+    load_measurements({page: args[:page],per_page: args[:per_page],measurement_params: args[:measurement_params]})
       .where(measurements:{
         created_at: Measurement.new.set_range(args[:type],args[:year] || 2017,args[:month] || 1)
       })
@@ -65,7 +67,7 @@ class Measurement < ApplicationRecord
   end
 
   def self.measurements_by_data_and_trainer(trainer,**args)
-    load_measurements({page: args[:page],per_page: args[:per_page]})
+    load_measurements({page: args[:page],per_page: args[:per_page],measurement_params: args[:measurement_params]})
       .where(measurements:{
         created_at: Measurement.new.set_range(args[:type],args[:year] || 2017,args[:month] || 1)
       })

@@ -19,11 +19,13 @@ class MedicalRecord < ApplicationRecord
 
   def self.load_medical_records(**args)
     includes(:diseases,exercises: [:images], user: [:challanges,:workouts,:measurements,:branch])
+      .select(args[:medical_record_params] || "medical_records.*")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
   def self.medical_record_by_id(id)
     includes(:diseases,exercises: [:images], user: [:challanges,:workouts,:measurements,:branch])
+      .select(args[:medical_record_params] || "medical_records.*")
       .find_by_id(id)
   end
 
@@ -43,14 +45,14 @@ class MedicalRecord < ApplicationRecord
   end
 
   def self.medical_records_with_diseases(**args)
-    joins(:medical_record_by_disease).select("medical_records.*")
+    joins(:medical_record_by_disease).select(args[:medical_record_params] || "medical_records.*")
       .group("medical_records.id")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
       .reorder("count(medical_record_by_disease.id)")
   end
 
   def self.medical_records_with_exercises(**args)
-    joins(:prohibited_exercises).select("medical_records.*")
+    joins(:prohibited_exercises).select(args[:medical_record_params] || "medical_records.*")
       .group("medical_records.id")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
       .reorder("count(prohibited_exercises.id)")

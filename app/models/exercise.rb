@@ -33,16 +33,22 @@ class Exercise < ApplicationRecord
   validates :level, inclusion: {in: levels.keys}
 
   def self.load_exercises(**args)
+    params = (args[:exercise_params] || "exercises.*") + ","
+    params = params + "exercises.id,exercises.trainer_id"
     includes(:images,medical_records: [:user],routines: [:workout_per_days])
+      .select(params)
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
-  def self.exercise_by_id(id)
+  def self.exercise_by_id(id,**args)
+    params = (args[:exercise_params] || "exercises.*") + ","
+    params = params + "exercises.id,exercises.trainer_id,exercises.updated_at"
     includes(:images,medical_records: [:user],routines: [:workout_per_days])
-      find_by_id(id)
+      .select(params)
+      .find_by_id(id)
   end
 
-  def self.exercises_by_name(name,**args)
+  def self.exercises_by_search(name,**args)
     load_exercises(args)
       .where("exercises.name LIKE ?", "#{name.downcase}%")
   end
@@ -58,50 +64,56 @@ class Exercise < ApplicationRecord
   end
 
   def self.exercises_with_images(**args)
-    joins(:pictures).select('exercises.*')
+    joins(:images).select(args[:exercise_params] || "exercises.*")
+      .select("count(images.id) AS images_count")
       .group("exercises.id")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
-      .reorder("count(pictures.id)")
+      .reorder("count(images.id)")
   end
 
   def self.exercises_with_medical_records(**args)
-    joins(:prohibited_exercises).select("exercises.*")
+    joins(:prohibited_exercises).select(args[:exercise_params] || "exercises.*")
+      .select("count(prohibited_exercises.id) as prohibited_exercises_count")
       .group("exercises.id")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
       .reorder("count(prohibited_exercises.id)")
   end
 
   def self.exercises_with_routines(**args)
-    joins(:routines).select("exercies.*")
+    joins(:routines).select(args[:exercise_params] || "exercises.*")
+      .select("count(routines.id) as routines_count")
       .group("exercises.id")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
       .reorder("count(routines.id)")
   end
 
   def self.exercises_available_user(ids, **args)
-    exercises = unscoped.load_exercises({page: args[:page],per_page[:per_page]})
+    exercises = joins(:prohibited_exercises).select(args[:exercise_params] || "exercises.*")
+      .group("exercises.id")
+      .paginate(:page => args[:page] || 1,:per_page => args[:per_page] || 10)
     if args[:trainer]
       exercises = exercises.where("exercises.owner = ? OR exercises.trainer_id = ?","admin",args[:trainer])
     else
       exercises = exercises.where("exercises.owner = ?", "admin")
     end
       exercises = exercises.where.not(prohibited_exercises: {exercise_id: ids})
-      exercises = exercises.references(:prohibited_exercises)
   end
 
   def self.exercises_by_workout(id,**args)
-    exercises = joins(routines: [:workout_per_days]).select("exercises.*")
+    joins(routines: [:workout_per_days]).select(args[:exercise_params] || "exercises.*")
       .where(workout_per_days: {workout_id: id})
       .group("exercises.id")
-    exercises_by_ids(exercises.ids,page,per_page)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
+    #exercises_by_ids(exercises.ids,page,per_page)
   end
 
   def self.exercises_by_workout_per_day(id,**args)
-    exercises = joins(routines: [:workout_per_days ]).select("exercises.*")
+    joins(routines: [:workout_per_days ]).select(args[:exercise_params] || "exercises.*")
       .where(workout_per_days: {workout_id: id})
-      .where(workout_per_days: {order: args[:day]})
+      .where(workout_per_days: {order: args[:day] || 0})
       .group("exercises.id")
-    exercises_by_ids(exercises.ids,{page: args[:page],per_page: args[:per_page]})
+      .paginate(:page => args[:page] || 1,:per_page => args[:per_page] || 10)
+    #exercises_by_ids(exercises.ids,{page: args[:page],per_page: args[:per_page]})
   end
 
 end
