@@ -18,13 +18,13 @@ class Api::V1::ChallangesController < ApplicationController
     else
       @challenges = Challange.load_challanges(challenge_pagination.merge(challenge_params: params[:challenge_params]))
     end
-    render json: @challenges,status: :ok,root: "data",each_serializer: Api::V1::ChallangeSerializer,render_attribute: params[:challenge_params] || "all"
+    render json: @challenges,status: :ok,each_serializer: Api::V1::ChallangeSerializer,render_attribute: params[:challenge_params] || "all"
   end
 
   def show
     if @challenges
       if stale?(@challenge,public: true)
-        render json: @challenge,status: :ok, :location => api_v1_challange_path(@challenge),root: "data",serializer: Api::V1::ChallangeSerializer,render_attribute: params[:challenge_params] || "all"
+        render json: @challenge,status: :ok, :location => api_v1_challange_path(@challenge),serializer: Api::V1::ChallangeSerializer,render_attribute: params[:challenge_params] || "all"
       end
     else
       record_not_found
@@ -36,7 +36,7 @@ class Api::V1::ChallangesController < ApplicationController
     @challange.trainer_id = current_trainer.id
     @challange.user_id = params[:user_id]
     if @challange.save
-      render json: @challenge,status: :ok, :location => api_v1_challange_path(@challenge),root: "data",serializer: Api::V1::ChallangeSerializer,render_attribute: params[:challenge_params] || "all"
+      render json: @challenge,status: :ok, :location => api_v1_challange_path(@challenge),serializer: Api::V1::ChallangeSerializer,render_attribute: params[:challenge_params] || "all"
     else
       record_errors(@challenge)
     end
@@ -46,7 +46,7 @@ class Api::V1::ChallangesController < ApplicationController
     if @challenge
       if @challenge.trainer_id == current_trainer.id
         if @challenge.update(challenge_params)
-          render json: @challenge,status: :ok, :location => api_v1_challange_path(@challange),root: "data", serializer: Api::V1::ChallangeSerializer, render_attribute: params[:challenge_params] || "all"
+          render json: @challenge,status: :ok, :location => api_v1_challange_path(@challange), serializer: Api::V1::ChallangeSerializer, render_attribute: params[:challenge_params] || "all"
         else
           record_errors(@challenge)
         end
@@ -73,18 +73,18 @@ class Api::V1::ChallangesController < ApplicationController
 
   def challanges_by_ids
     @challenges = Challange.challanges_by_ids(set_ids,challenge_pagination.merge(challenge_params: params[:challenge_params]))
-    render json: @challenges,status: :ok, each_serializer: Api::V1::ChallangeSerializer,root: "data",render_attribute: params[:challenge_params] || "all"
+    render json: @challenges,status: :ok, each_serializer: Api::V1::ChallangeSerializer,render_attribute: params[:challenge_params] || "all"
   end
 
   def challanges_by_not_ids
     @challenges = Challange.challanges_by_not_ids(set_ids,challenge_pagination.merge(challenge_params: params[:challenge_params]))
-    render json: @challenges,status: :ok,each_serializer: Api::V1::ChallangeSerializer,root: "data",render_attribute: params[:challenge_params] || "all"
+    render json: @challenges,status: :ok,each_serializer: Api::V1::ChallangeSerializer,render_attribute: params[:challenge_params] || "all"
   end
 
   def challanges_by_search
     if params.has_key?(:q)
       @challenges = Challange.challanges_by_search(params[:q], challenge_pagination.merge(challenge_params: params[:challenge_params]))
-      render json: @challenges, status: :ok,each_serializer: Api::V1::ChallangeSerializer,root: "data",render_attribute: params[:challenge_params] || "all"
+      render json: @challenges, status: :ok,each_serializer: Api::V1::ChallangeSerializer,render_attribute: params[:challenge_params] || "all"
     else
       q_not_found
     end
@@ -100,7 +100,7 @@ class Api::V1::ChallangesController < ApplicationController
     else
       @challenges = Challange.challanges_by_type(params[:type],challenge_pagination.merge(challenge_params: params[:challenge_params]))
     end
-    render json: @challenges,status: :ok,each_serializer: Api::V1::ChallangeSerializer,root: "data",render_attribute: params[:challenge_params] || "all"
+    render json: @challenges,status: :ok,each_serializer: Api::V1::ChallangeSerializer,render_attribute: params[:challenge_params] || "all"
   end
 
   def challanges_by_state
@@ -113,7 +113,7 @@ class Api::V1::ChallangesController < ApplicationController
     else
       @challenges = Challange.challanges_by_state(params[:state], challenge_pagination.merge(challenge_params: params[:challenge_params]))
     end
-    render json: @challenges,status: :ok,each_serializer: Api::V1::ChallangeSerializer,root: "data",render_attribute: params[:challenge_params] || "all"
+    render json: @challenges,status: :ok,each_serializer: Api::V1::ChallangeSerializer,render_attribute: params[:challenge_params] || "all"
   end
 
   def challanges_by_start_date
@@ -126,7 +126,7 @@ class Api::V1::ChallangesController < ApplicationController
     else
       @challenges = Challange.challanges_by_start_date(params[:type],challenge_pagination.merge({year: params[:year],month: params[:month]}).merge(challenge_params: params[:challenge_params]))
     end
-    render json: @challenges,status: :ok,each_serializer: Api::V1::ChallangeSerializer,root: "data",render_attribute: params[:challenge_params] || "all"
+    render json: @challenges,status: :ok,each_serializer: Api::V1::ChallangeSerializer,render_attribute: params[:challenge_params] || "all"
   end
 
   def challanges_by_end_date
@@ -139,7 +139,7 @@ class Api::V1::ChallangesController < ApplicationController
     else
       @challenges = Challange.challanges_by_end_date(params[:type],challenge_pagination.merge({year: params[:year],month: params[:month]}).merge(challenge_params: params[:challenge_params]))
     end
-    render json: @challenges,status: :ok,each_serializer: Api::V1::ChallangeSerializer,root: "data",render_attribute: params[:challenge_params] || "all"
+    render json: @challenges,status: :ok,each_serializer: Api::V1::ChallangeSerializer,render_attribute: params[:challenge_params] || "all"
   end
 
   private

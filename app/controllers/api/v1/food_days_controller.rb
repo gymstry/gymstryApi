@@ -10,17 +10,17 @@ class Api::V1::FoodDaysController < ApplicationController
 
   def index
     if params.has_key?(:nutrition_routine)
-      @food_days = FoodDay.food_days_by_nutrition_routine(params[:nutrition_routine],args)
+      @food_days = FoodDay.food_days_by_nutrition_routine(params[:nutrition_routine],food_day_pagination.merge(food_day_params: params[:food_day_params]))
     else
-      @food_days = FoodDay.load_food_days(food_day_pagination)
+      @food_days = FoodDay.load_food_days(food_day_pagination.merge(food_day_params: params[:food_day_params]))
     end
-    render json: @food_days,status: :ok
+    render json: @food_days,status: :ok,  each_serializer: Api::V1::FoodDaySerializer,render_attribute: params[:food_day_params] || "all"
   end
 
   def show
     if @food_day
       if stale?(@food_day,public: true)
-        render json: @food_day,status: :ok, :location => api_v1_food_day(@food_day)
+        render json: @food_day,status: :ok, :location => api_v1_food_day_path(@food_day),  serializer: Api::V1::FoodDaySerializer, render_attribute: params[:food_day_params] || "all"
       end
     else
       record_not_found
@@ -39,7 +39,7 @@ class Api::V1::FoodDaysController < ApplicationController
             @food_day.foods << food
           end
           if @food_day.save
-            render json: @food_day,status: :created, :location => api_v1_food_day(@food_day)
+            render json: @food_day,status: :created, :location => api_v1_food_day_path(@food_day),  serializer: Api::V1::FoodDaySerializer,render_attribute: params[:food_day_params] || "all"
           else
             record_errors(@food_day)
           end
@@ -58,7 +58,7 @@ class Api::V1::FoodDaysController < ApplicationController
     if @food_day
       if @food_day.nutrition_routine.trainer_id == current_trainer.id
         if @food_day.update(food_day_params)
-          render json: @food_day, status: :ok, :location => api_v1_food_day(@food_day)
+          render json: @food_day, status: :ok, :location => api_v1_food_day_path(@food_day),  serializer: Api::V1::FoodDaySerializer, render_attribute: params[:food_day_params] || "all"
         else
           record_errors(@food_day)
         end
@@ -84,33 +84,33 @@ class Api::V1::FoodDaysController < ApplicationController
   end
 
   def food_days_by_ids
-    @food_days = FoodDay.food_days_by_ids(set_ids,food_day_pagination)
-    render json: @food_days,status: :ok
+    @food_days = FoodDay.food_days_by_ids(set_ids,food_day_pagination.merge(food_day_params: params[:food_day_params]))
+    render json: @food_days,status: :ok, each_serializer: Api::V1::FoodDaySerializer,render_attribute: params[:food_day_params] || "all"
   end
 
   def food_days_by_not_ids
-    @food_days = FoodDay.food_days_by_not_ids(set_ids,food_day_pagination)
-    render json: @food_days,status: :ok
+    @food_days = FoodDay.food_days_by_not_ids(set_ids,food_day_pagination.merge(food_day_params: params[:food_day_params]))
+    render json: @food_days,status: :ok,  each_serializer: Api::V1::FoodDaySerializer,render_attribute: params[:food_day_params] || "all"
   end
 
   def food_days_with_foods
-    @food_days = FoodDay.food_days_with_foods(food_day_pagination)
-    render json: @food_days,status: :ok
+    @food_days = FoodDay.food_days_with_foods(food_day_pagination.merge(food_days_params: params[:food_days_params]))
+    render json: @food_days,status: :ok,  each_serializer: Api::V1::FoodDaySerializer, render_attribute: params[:food_days_params] || "all"
   end
 
   def food_days_by_type
     if params.has_key?(:nutrition_routine)
-      @food_days = FoodDay.food_days_by_type(params[:type],food_day_pagination)
+      @food_days = FoodDay.food_days_by_type(params[:type],food_day_pagination.merge(food_day_params: params[:food_day_params]))
         .search_by_nutrition_routine_id(params[:nutrition_routine])
     else
-      @food_days = FoodDay.food_days_by_type(params[:type],food_day_pagination)
+      @food_days = FoodDay.food_days_by_type(params[:type],food_day_pagination.merge(food_day_params: params[:food_day_params]))
     end
-    render json: @food_days, status: :ok
+    render json: @food_days, status: :ok, each_serializer: Api::V1::FoodDaySerializer, render_attribute: params[:food_day_params] || "all"
   end
 
   private
   def set_food_day
-    @food_day = FoodDay.fodd_day_by_id(params[:id])
+    @food_day = FoodDay.fodd_day_by_id(params[:id],{food_day_params: params[:food_day_params]})
   end
 
   def food_day_params

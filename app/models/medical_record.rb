@@ -9,8 +9,8 @@ class MedicalRecord < ApplicationRecord
   scope :search_by_user, -> (id) {where("medical_records.user_id = ?", id)}
 
   belongs_to :user
-  has_many :medical_record_by_disease
-  has_many :diseases, -> {(reorder("diseases.name ASC"))}, through: :medical_record_by_disease
+  has_many :medical_record_by_diseases
+  has_many :diseases, -> {(reorder("diseases.name ASC"))}, through: :medical_record_by_diseases
   has_many :prohibited_exercises
   has_many :exercises, -> {(reorder("exercises.name ASC"))}, through: :prohibited_exercises
 
@@ -18,14 +18,18 @@ class MedicalRecord < ApplicationRecord
   validates :weight,:chest,:hips,:waist,:body_fat_percentage,numericality: { greater_than_or_equal: 0 }
 
   def self.load_medical_records(**args)
+    params = (args[:medical_record_params] || "medical_records.*") + ","
+    params = params + "medical_records.id,medical_records.user_id"
     includes(:diseases,exercises: [:images], user: [:challanges,:workouts,:measurements,:branch])
-      .select(args[:medical_record_params] || "medical_records.*")
+      .select(params)
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
-  def self.medical_record_by_id(id)
+  def self.medical_record_by_id(id,**args)
+    params = (args[:medical_record_params] || "medical_records.*") + ","
+    params = params + "medical_records.id,medical_records.user_id,medical_records.updated_at"
     includes(:diseases,exercises: [:images], user: [:challanges,:workouts,:measurements,:branch])
-      .select(args[:medical_record_params] || "medical_records.*")
+      .select(params)
       .find_by_id(id)
   end
 
@@ -39,16 +43,16 @@ class MedicalRecord < ApplicationRecord
       .where.not(id: ids)
   end
 
-  def self.medical_record_by_user(user)
-    includes(:diseases,exercises: [:images], user: [:challanges,:workouts,:measurements,:branch])
+  def self.medical_record_by_user(user,**args)
+    load_medical_records(args)
       .where(medical_records: {user_id: user}).first
   end
 
   def self.medical_records_with_diseases(**args)
-    joins(:medical_record_by_disease).select(args[:medical_record_params] || "medical_records.*")
+    joins(:medical_record_by_diseases).select(args[:medical_record_params] || "medical_records.*")
       .group("medical_records.id")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
-      .reorder("count(medical_record_by_disease.id)")
+      .reorder("count(medical_record_by_diseases.id)")
   end
 
   def self.medical_records_with_exercises(**args)

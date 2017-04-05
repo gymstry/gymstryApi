@@ -20,14 +20,18 @@ class FoodDay < ApplicationRecord
   validates :type_food, inclusion: {in: type_foods.keys}
 
   def self.load_food_days(**args)
+    params = (args[:food_day_params] || "food_days.*") + ","
+    params = params + "food_days.id,food_days.nutrition_routine_id"
     includes(:foods,nutrition_routine: [:user,:trainer])
-      .select(args[:food_day_params] || "food_days.*")
+      .select(params)
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
-  def self.fodd_day_by_id(id)
+  def self.fodd_day_by_id(id,**args)
+    params = (args[:food_day_params] || "food_days.*") + ","
+    params = params + "food_days.id,food_days.nutrition_routine_id,food_days.updated_at"
     includes(:foods,nutrition_routine: [:user,:trainer])
-      .select(args[:food_day_params] || "food_days.*")
+      .select(params)
       .find_by_id(id)
   end
 
@@ -43,7 +47,7 @@ class FoodDay < ApplicationRecord
 
   def self.food_days_by_type(type,**args)
     food_days = load_food_days(args)
-    case type.downcase
+    case (type || "").downcase
     when "breakfast"
       food_days = food_days.breakfast
     when "lunch"
@@ -63,10 +67,10 @@ class FoodDay < ApplicationRecord
       .search_by_nutrition_routine_id(id)
   end
 
-  def self.food_days_with_foods(page = 1,per_page = 10)
+  def self.food_days_with_foods(**args)
     joins(:food_day_per_foods).select(args[:food_day_params] || "food_days.*")
       .group("food_days.id")
-      .paginate(:page => page, :per_page => per_page)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
       .reorder("count(food_day_per_foods.id)")
   end
 

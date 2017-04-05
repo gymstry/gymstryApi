@@ -9,19 +9,19 @@ class Api::V1::ImagesController < ApplicationController
 
   def index
     if params.has_key?(:exercise_id)
-      @images = Image.images_by_exercise(params[:exercise_id],image_pagination)
+      @images = Image.images_by_exercise(params[:exercise_id],image_pagination.merge(image_params: params[:image_params]))
     elsif params.has_key?(:gym_id)
-      @images = Image.images_by_gym(params[:gym_id],image_pagination)
+      @images = Image.images_by_gym(params[:gym_id],image_pagination.merge(image_params: params[:image_params]))
     else
-      @images = Image.load_images(image_pagination)
+      @images = Image.load_images(image_pagination.merge(image_params: params[:image_params]))
     end
-    render json: @images,status: :ok
+    render json: @images,status: :ok,each_serializer: Api::V1::ImageSerializer,render_attribute: params[:image_params] || "all"
   end
 
   def show
     if @image
       if stale?(@image,public: true)
-        render json: @image,status: :ok,:location => api_v1_image(@image)
+        render json: @image,status: :ok,:location => api_v1_image_path(@image),serializer: Api::V1::ImageSerializer,render_attribute: params[:image_params] || "all"
       end
     else
       record_not_found
@@ -52,7 +52,7 @@ class Api::V1::ImagesController < ApplicationController
         exercise = Exercise.find_by_id(params[:exercise_id])
         if current_member.is_a?(Trainer) && exercise && exercise.trainer_id == current_member.id
           if @image.update(image_params)
-            render json: @image,status: :ok, :location => api_v1_image(@image)
+            render json: @image,status: :ok, :location => api_v1_image_path(@image),serializer: Api::V1::ImageSerializer,render_attribute: params[:image_params] || "all"
           else
             record_errors(@image)
           end
@@ -63,7 +63,7 @@ class Api::V1::ImagesController < ApplicationController
         gym = Gym.find_by_id(params[:id])
         if current_member.is_a?(Gym) && gym && gym.id == current_member
           if @image.update(image_params)
-            render json: @image,status: :ok, :location => api_v1_image(@image)
+            render json: @image,status: :ok, :location => api_v1_image_path(@image),serializer: Api::V1::ImageSerializer,render_attribute: params[:image_params] || "all"
           else
             record_errors(@image)
           end
@@ -101,13 +101,13 @@ class Api::V1::ImagesController < ApplicationController
   end
 
   def images_by_ids
-    @images = Image.images_by_ids(set_ids,image_pagination)
-    render json: @images,status: :ok
+    @images = Image.images_by_ids(set_ids,image_pagination.merge(image_params: params[:image_params]))
+    render json: @images,status: :ok,each_serializer: ImageSerializer,render_attribute: params[:image_params] || "all"
   end
 
   def images_by_not_ids
     @images = Image.images_by_not_ids(set_ids,image_pagination)
-    render json: @images,status: :ok
+    render json: @images,status: :ok,each_serializer: ImageSerializer,render_attribute: params[:image_params] || "all"
   end
 
   private
@@ -120,7 +120,7 @@ class Api::V1::ImagesController < ApplicationController
   end
 
   def set_image
-    @image = Image.image_by_id(params[:id])
+    @image = Image.image_by_id(params[:id],{image_params: params[:image_params]})
   end
 
   def image_pagination

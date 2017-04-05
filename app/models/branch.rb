@@ -16,6 +16,7 @@ class Branch < ActiveRecord::Base
   has_many :trainers, -> {reorder("trainers.name ASC, trainers.lastname ASC")}
   has_many :events, -> {reorder("events.class_date ASC")}
   has_many :timetables
+  has_many :offers
 
   # Horarios en otra tabla
   validates :name, :email, :address, :telephone, presence: true

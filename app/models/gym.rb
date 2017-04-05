@@ -24,31 +24,29 @@ class Gym < ActiveRecord::Base
   validate :validate_speciality
 
   def self.load_gyms(**args)
+    params = (args[:gym_params] || "gyms.*") + ","
+    params = params + "gyms.id"
     includes(:images,branches: [:users,:trainers,:events])
-      .select(args[:gym_params] || "gyms.*")
+      .select(params)
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
-  def self.gym_by_id(id)
+  def self.gym_by_id(id,**args)
+    params = (args[:gym_params] || "gyms.*") + ","
+    params = params + "gyms.id,gyms.updated_at"
     includes(:images,branches: [:users,:trainers,:events])
-      .select(args[:gym_params] || "gyms.*")
+      .select(params)
       .find_by_id(id)
   end
 
-  def self.gym_by_email(email)
-    includes(:images,branches: [:users,:trainers,:events])
-      .select(args[:gym_params] || "gyms.*")
-      .find_by_email(email)
-  end
-
-  def self.gyms_by_name(name, **args)
+  def self.gyms_by_search(search,**args)
     load_gyms(**args)
-      .where("gyms.name LIKE ?", "#{name.downcase}")
+      .where("gyms.name LIKE ? or gyms.email LIKE ?","#{search.downcase}%", "#{search.downcase}%" )
   end
 
   def self.gyms_by_speciality(speciality,**args)
     load_gyms(args)
-      .where("\'#{speciality}\' = ANY (speciality)")
+      .where("\'#{speciality || ""}\' = ANY (speciality)")
   end
 
   def self.gyms_by_ids(ids,**args)
@@ -78,20 +76,21 @@ class Gym < ActiveRecord::Base
   end
 
   def self.gyms_with_offers(**args)
-    joins(:offers).select(args[:gym_params] || "gyms.*")
-      .select("COUNT(offers.id) AS count_offers")
+    joins(branches: :offers).select(args[:gym_params] || "gyms.*")
+      .select("COUNT(offers.id) as count_offers")
       .group("gyms.id")
-      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
+      .paginate(:page => args[:page] || 1,:per_page => args[:per_page])
       .reorder("count(offers.id)")
   end
 
   def self.gyms_with_offers_and_date(type,**args)
-    joins(:offers).select(args[:gym_params] || "gyms.*")
+    joins(branches: :offers).select(args[:gym_params] || "gyms.*")
+      .select("COUNT(offers.id) as count_offers")
       .where(offers: {
-        end_day: Gym.new.set_range(type,args[:year] || 2017,args[:month] || 1)
+        end_day:  Gym.new.set_range(type || "today",args[:year] || Date.today.year,args[:month] || 1)
       })
       .group("gyms.id")
-      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
+      .paginate(:page => args[:page] || 1,:per_page => args[:per_page])
   end
 
   protected

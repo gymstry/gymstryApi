@@ -269,13 +269,13 @@ ActiveRecord::Schema.define(version: 20170204032706) do
 
   create_table "offers", force: :cascade do |t|
     t.string   "name",                               null: false
-    t.date     "start_day",   default: '2017-03-31', null: false
+    t.date     "start_day",   default: '2017-04-03', null: false
     t.date     "end_day",                            null: false
     t.text     "description",                        null: false
-    t.integer  "gym_id"
+    t.integer  "branch_id"
     t.datetime "created_at",                         null: false
     t.datetime "updated_at",                         null: false
-    t.index ["gym_id"], name: "index_offers_on_gym_id", using: :btree
+    t.index ["branch_id"], name: "index_offers_on_branch_id", using: :btree
   end
 
   create_table "prohibited_exercises", force: :cascade do |t|
@@ -460,7 +460,7 @@ ActiveRecord::Schema.define(version: 20170204032706) do
   add_foreign_key "medical_records", "users"
   add_foreign_key "nutrition_routines", "trainers"
   add_foreign_key "nutrition_routines", "users"
-  add_foreign_key "offers", "gyms"
+  add_foreign_key "offers", "branches"
   add_foreign_key "prohibited_exercises", "exercises"
   add_foreign_key "prohibited_exercises", "medical_records"
   add_foreign_key "qualifications", "trainers"

@@ -14,7 +14,7 @@ unless Rails.env.production?
             password_confirmation: "gutierrez2011",
             address: Faker::Address.unique.street_address,
             telephone: Faker::Number.unique.number(10),
-            speciality: a.sample,
+            speciality: [a.sample],
             birthday: Faker::Date.birthday(1, 30)
           )
         end

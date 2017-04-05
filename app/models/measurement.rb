@@ -18,14 +18,18 @@ class Measurement < ApplicationRecord
   validates :weight,:hips,:chest,:body_fat_percentage,:waist,numericality: { greater_than_or_equal: 0}
 
   def self.load_measurements(**args)
+    params = (args[:measurment_params] || "measurements.*") + ","
+    params = params + "measurements.id,measurements.user_id,measurements.trainer_id"
     includes(user: [:medical_record,:challanges,:workouts],trainer: [:challanges,:qualifications,:workouts])
-      .select(args[:measurement_params] || "measurements.*")
+      .select(params)
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
-  def self.measurement_by_id(id)
+  def self.measurement_by_id(id,**args)
+    params = (args[:measurment_params] || "measurements.*") + ","
+    params = params + "measurements.id,measurements.user_id,measurements.trainer_id"
     includes(user: [:medical_record,:challanges,:workouts],trainer: [:challanges,:qualifications,:workouts])
-      .select(args[:measurement_params] || "measurements.*")
+      .select(params)
       .find_by_id(id)
   end
 
@@ -36,7 +40,7 @@ class Measurement < ApplicationRecord
       })
   end
 
-  def self_measurements_by_not_ids(ids,**args)
+  def self.measurements_by_not_ids(ids,**args)
     load_measurements(args)
       .where.not(measurements:{
         id: ids
@@ -54,7 +58,7 @@ class Measurement < ApplicationRecord
   def self.measurements_by_date(type,**args)
     load_measurements({page: args[:page],per_page: args[:per_page],measurement_params: args[:measurement_params]})
       .where(measurements:{
-        created_at: Measurement.new.set_range(type,args[:year] || 2017,args[:month] || 1)
+        created_at: Measurement.new.set_range(type || "today",args[:year] || Date.today.year,args[:month] || 1)
       })
   end
 

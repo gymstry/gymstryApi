@@ -37,8 +37,8 @@ Rails.application.routes.draw do
       resources :gyms, only: [:index,:show,:destroy] do
         resources :images, only: [:index,:create,:update,:destroy]
         collection do
-          get 'gym-by-email', to: "gyms#gym_by_email"
-          get 'gyms-by-name', to: "gyms#gyms_by_name"
+          #get 'gym-by-email', to: "gyms#gym_by_email"
+          get 'gyms-by-search', to: "gyms#gyms_by_search"
           get 'gyms-by-ids', to: "gyms#gyms_by_ids"
           get 'gyms-by-not-ids', to: "gyms#gyms_by_not_ids"
           get 'gyms-with-branches', to: "gyms#gyms_with_branches"
@@ -133,10 +133,10 @@ Rails.application.routes.draw do
         end
         resources :images, only: [:index,:create,:update,:destroy]
         resources :exercises, only: [:index] do
-          collection do
-            get 'exercises-by-name', to: "exercises#exercises_by_name"
-            get 'exercises-available-user', to: "exercises#exercises_available_user"
-          end
+           collection do
+             get 'exercises-by-search', to: "exercises#exercises_by_search"
+             get 'exercises-available-user', to: "exercises#exercises_available_user"
+           end
         end
         resources :challanges, only: [:index] do
           collection do
@@ -150,12 +150,8 @@ Rails.application.routes.draw do
         collection do
           get 'trainers-by-ids', to: "trainers#trainers_by_ids"
           get 'trainers-by-not-ids', to: "trainers#trainers_by_not_ids"
-          get 'trainer-by-username', to: "trainers#trainer_by_username"
-          get 'trainer-by-eamil', to: "trainers#trainer_by_email"
-          get 'trainers-by-name', to: "trainers#trainers_by_name"
-          get 'trainers-by-lastname', to: "trainers#trainers_by_lastname"
-          get 'trainers-by-username-or-email', to: "trainers#trainers_by_username_or_email"
-          get 'trainers_by_birthday', to: "trainers#trainers_by_birthday"
+          get 'trainers-by-search', to: "trainers#trainers_by_search"
+          get 'trainers-by-birthday', to: "trainers#trainers_by_birthday"
           get 'trainers-by-speciality', to: "trainers#trainers_by_speciality"
           get 'trainers-with-qualifications', to: "trainers#trainers_with_qualifications"
           get 'trainers-with-challenges', to: "trainers#trainers_with_challanges"
@@ -186,15 +182,11 @@ Rails.application.routes.draw do
           end
         end
         collection do
-          get 'male', to: "users#users_male"
-          get 'female', to: "users#users_female"
+          get 'male', to: "users#male"
+          get 'female', to: "users#female"
           get 'users-by-ids', to: "users#users_by_ids"
           get 'users-by-not-ids', to: "users#users_by_not_ids"
-          get 'user-by-email', to: "users#user_by_email"
-          get 'user-by-username',to: "users#user_by_username"
-          get 'users-by-name', to: "users#users_by_name"
-          get 'users-by-lastname', to: "users#users_by_lastname"
-          get 'users-by-username-or-email', to: "users#users_by_username_or_email"
+          get 'users-by-search', to: "users#users_by_search"
           get 'users-by-birthday', to: "users#users_by_birthday"
           get 'users-with-challenges', to: "users#users_with_challenges"
           get 'users-with-measurements', to: "users#users_with_measurements"
@@ -256,7 +248,7 @@ Rails.application.routes.draw do
       end
       resources :nutrition_routines, only: [:index,:show,:update,:destroy] do
         collection do
-          get 'nutrition-routines-by-name', to: "nutrition_routines#nutrition_routines_by_name"
+          get 'nutrition-routines-by-search', to: "nutrition_routines#nutrition_routines_by_search"
           get 'nutrition-routines-by-ids', to: "nutrition_routines#nutrition_routines_by_ids"
           get 'nutrition-routines-by-not-ids',to: "nutrition_routines#nutrition_routines_by_not_ids"
           get 'nutrition-routines-by-start-date', to: "nutrition_routines#nutrition_routines_by_start_date"
@@ -272,7 +264,7 @@ Rails.application.routes.draw do
       resources :medical_records, only: [:index,:show,:update,:destroy] do
         collection do
           get 'medical-records-by-ids', to: "medical_records#medical_records_by_ids"
-          get 'medical_records_by_not_ids', to: "medical_records#medical_records_by_not_ids"
+          get 'medical-records-by-not-ids', to: "medical_records#medical_records_by_not_ids"
           get 'medical-records-with-diseases', to: "medical_records#medical_records_with_diseases"
           get 'prohibited-exercises', to: "medical_records#medical_records_with_exercises"
         end
@@ -285,7 +277,7 @@ Rails.application.routes.draw do
 
       resources :foods do
         collection do
-          get 'foods-by-name', to: "foods#foods_by_name"
+          get 'foods-by-search', to: "foods#foods_by_search"
           get 'foods-by-ids', to: "foods#foods_by_ids"
           get 'foods-by-not-ids', to: "foods#foods_by_not_ids"
           get 'foods-by-proteins-greater-than', to: "foods#foods_by_proteins_greater_than"
@@ -296,8 +288,11 @@ Rails.application.routes.draw do
       end
 
       resources :images, only: [:index,:show] do
-        get 'images-by-ids', to: "images#images_by_ids"
-        get 'images-by-not-ids', to: "images#images_by_not_ids"
+        collection do
+          get 'images-by-ids', to: "images#images_by_ids"
+          get 'images-by-not-ids', to: "images#images_by_not_ids"
+        end
+
       end
 
       resources :measurements do

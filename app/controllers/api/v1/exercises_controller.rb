@@ -16,13 +16,13 @@ class Api::V1::ExercisesController < ApplicationController
     else
       @exercises = Exercise.load_exercises(exercise_pagination.merge(exercise_params: params[:exercise_params]))
     end
-    render json: @exercises, status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
+    render json: @exercises, status: :ok, each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
   end
 
   def show
     if @exercise
       if stale?(@exercise,public: true)
-        render json: @exercise,status: :ok,:location => api_v1_exercy_path(@exercise),root: "data", serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
+        render json: @exercise,status: :ok,:location => api_v1_exercy_path(@exercise), serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
       end
     else
       record_not_found
@@ -37,7 +37,7 @@ class Api::V1::ExercisesController < ApplicationController
       @exercise.owner = "trainer"
     end
     if @exercise.save
-      render json: @exercise,status: :ok,:location => api_v1_exercy_path(@exercise),root: "data", serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
+      render json: @exercise,status: :ok,:location => api_v1_exercy_path(@exercise), serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
     else
       record_errors(@exercise)
     end
@@ -47,7 +47,7 @@ class Api::V1::ExercisesController < ApplicationController
     if @exercise
       if current_member.is_a?(Admin) || (current_member.id == @exercise.trainer_id)
         if @exercise.update(exercise_params)
-          render json: @exercise,status: :ok,:location => api_v1_exercy_path(@exercise),root: "data", serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
+          render json: @exercise,status: :ok,:location => api_v1_exercy_path(@exercise), serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
         else
           record_errors(@exercise)
         end
@@ -107,7 +107,7 @@ class Api::V1::ExercisesController < ApplicationController
       else
         @exercises = Exercise.exercises_by_search( params[:q],exercise_pagination.merge(exercise_params: params[:exercise_params]))
       end
-      render json: @exercises,status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
+      render json: @exercises,status: :ok, each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
     else
       q_not_found
     end
@@ -115,27 +115,27 @@ class Api::V1::ExercisesController < ApplicationController
 
   def exercises_by_ids
     @exercises = Exercise.exercises_by_ids(set_ids,exercise_pagination.merge(exercise_params: params[:exercise_params]))
-    render json: @exercises,status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
+    render json: @exercises,status: :ok, each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
   end
 
   def exercises_by_not_ids
     @exercises = Exercise.exercises_by_not_ids(set_ids,exercise_pagination.merge(exercise_params: params[:exercise_params]))
-    render json: @exercises,status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
+    render json: @exercises,status: :ok, each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
   end
 
   def exercises_with_images
     @exercises = Exercise.exercises_with_images(exercise_pagination.merge(exercise_params: params[:exercise_params]))
-    render json: @exercises,status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
+    render json: @exercises,status: :ok, each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
   end
 
   def exercises_with_medical_records
     @exercises = Exercise.exercises_with_medical_records(exercise_pagination.merge(exercise_params: params[:exercise_params]))
-    render json: @exercises,status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
+    render json: @exercises,status: :ok, each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
   end
 
   def exercises_with_routines
     @exercises = Exercise.exercises_with_medical_records(exercise_pagination.merge(exercise_params: params[:exercise_params]))
-    render json: @exercises,status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
+    render json: @exercises,status: :ok, each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
   end
 
   def exercises_available_user
@@ -151,7 +151,7 @@ class Api::V1::ExercisesController < ApplicationController
       else
         @exercises = Exercise.exercises_available_user(ids,exercise_pagination.merge(exercise_params: params[:exercise_params]))
       end
-      render json: @exercises,status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
+      render json: @exercises,status: :ok, each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
     else
       user_needed
     end
@@ -159,7 +159,7 @@ class Api::V1::ExercisesController < ApplicationController
 
   def exercises_by_workout_per_day
     @exercises = Exercise.exercises_by_workout_per_day(params[:workout_id],exercise_pagination.merge({day: params[:day]}).merge(exercise_params: params[:exercise_params]))
-    render json: @exercises,status: :ok,root: "data", each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
+    render json: @exercises,status: :ok, each_serializer: Api::V1::ExerciseSerializer,render_attribute: params[:exercise_params] || "all"
   end
 
   protected

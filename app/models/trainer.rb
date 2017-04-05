@@ -47,14 +47,18 @@ class Trainer < ActiveRecord::Base
   validate :validate_speciality
 
   def self.load_trainers(**args)
+    params = (args[:trainer_params] || "trainers.*") + ","
+    params = params + "trainers.id,trainers.branch_id"
     includes(:exercises,:qualifications,challanges: [:user],measurements: [:user],workouts: [:user])
-    .select(args[:trainer_params] || "trainers.*")
+    .select(params)
     .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
-  def self.trainer_by_id(id)
+  def self.trainer_by_id(id,**args)
+    params = (args[:trainer_params] || "trainers.*") + ","
+    params = params + "trainers.id,trainers.branch_id,trainers.updated_at"
     includes(:exercises,:qualifications,challanges: [:user],measurements: [:user],workouts: [:user])
-    .select(args[:trainer_params] || "trainers.*")
+    .select(params)
     .find_by_id(id)
   end
 
@@ -68,39 +72,19 @@ class Trainer < ActiveRecord::Base
       .where.not(trainers:{id: ids})
   end
 
-  def self.trainer_by_username(username)
-    includes(:exercises,:qualifications,challanges: [:user],measurements: [:user],workouts: [:user])
-      .find_by_username(username)
-  end
-
-  def self.trainer_by_email(email)
-    includes(:exercises,:qualifications,challanges: [:user],measurements: [:user],workouts: [:user])
-      .find_by_email(email)
-  end
-
-  def self.trainers_by_name(name,**args)
+  def self.trainers_by_search(search,**args)
     load_trainers(args)
-      .where("trainers.name LIKE ?", "#{name.downcase}%")
-  end
-
-  def self.trainers_by_lastname(lastname,**args)
-    load_trainers(args)
-      .where("trainers.lastname LIKE ?", "#{name.downcase}%")
-  end
-
-  def self.trainers_by_username_or_email(text,**args)
-    load_trainers(args)
-      .where("trainers.email LIKE ? OR trainers.username LIKE ?","#{text.downcase}%", "#{text.downcase}%")
+      .where("trainers.name LIKE ? or trainers.lastname LIKE ? or trainers.email LIKE ? or trainers.username LIKE ?","#{search}%","#{search}%","#{search}%","#{search}%")
   end
 
   def self.trainers_by_birthday(type, **args)
     load_trainers({page: args[:page],per_page: args[:per_page]})
-      .where(trainers:{birthday: Trainer.new.set_range(type,args[:year] || 2017,args[:month] || 1)})
+      .where(trainers:{birthday: Trainer.new.set_range(type || "today",args[:year] || Date.today.year,args[:month] || 1)})
   end
 
   def self.trainers_by_speciality(speciality,**args)
     load_trainers(**args)
-    .where("\'#{speciality}\' = ANY (speciality)")
+    .where("\'#{speciality || ""}\' = ANY (speciality)")
   end
 
   def self.trainers_with_qualifications(**args)

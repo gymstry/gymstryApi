@@ -44,8 +44,10 @@ class User < ActiveRecord::Base
   validates :avatar, file_size: { less_than_or_equal_to: 1.megabyte }
 
   def self.load_users(**args)
+    params = (args[:user_params] || "users.*") + ","
+    params = params + "users.id,users.branch_id"
     includes(:medical_record,challanges: [:trainer],measurements: [:trainer],workouts: [:trainer])
-    .select(args[:user_params] || "users.*")
+    .select(params)
     .paginate(:page => args[:page] || 1,:per_page => args[:per_page] || 10)
   end
 
@@ -54,9 +56,11 @@ class User < ActiveRecord::Base
       .search_by_branch_id(branch_id)
   end
 
-  def self.user_by_id(id)
+  def self.user_by_id(id,**args)
+    params = (args[:user_params] || "users.*") + ","
+    params = params +"users.id,users.branch_id,users.updated_at"
     includes(:medical_record,challanges: [:trainer],measurements: [:trainer],workouts: [:trainer])
-    .select(args[:user_params] || "users.*")
+    .select(params)
     .find_by_id(id)
   end
 
@@ -70,34 +74,24 @@ class User < ActiveRecord::Base
       .where.not(users:{id: ids})
   end
 
-  def self.user_by_email(email)
-    includes(:medical_record,challanges: [:trainer],measurements: [:trainer],workouts: [:trainer])
-    .select(args[:user_params] || "users.*").find_by_email(email)
-  end
-
-  def self.user_by_username(username)
-    includes(:medical_record,challanges: [:trainer],measurements: [:trainer],workouts: [:trainer])
-      .find_by_username(username)
-  end
-
-  def self.users_by_name(name,**args)
+  def self.users_by_search(search,**args)
     load_users(args)
-      .where("users.name LIKE ?","#{name.downcase}%")
+      .where("users.name LIKE ? or users.username LIKE ? or users.email LIKE ? or users.lastname LIKE ?","#{search.downcase}%","#{search.downcase}%","#{search.downcase}%","#{search.downcase}%")
   end
 
-  def self.users_by_lastname(lastname, **args)
+  def self.users_by_male(**args)
     load_users(args)
-      .where("users.lastname LIKE ?", "#{lastname.downcase}%")
+      .male
   end
 
-  def self.users_by_username_or_email(text,**args)
+  def self.users_by_female(**args)
     load_users(args)
-      .where("users.email LIKE ? or users.username LIKE ?", "#{text.downcase}%", "#{text.downcase}%")
+      .female
   end
 
   def self.users_by_birthday(type,**args)
-    load_users(page,per_page)
-      .where(users:{birthday: User.new.set_range(type,args[:year] || 2017,args[:month] || 1)})
+    load_users(args)
+      .where(users:{birthday: User.new.set_range(type || "today",args[:year] || Date.today.year,args[:month] || 1)})
   end
 
   def self.users_with_challanges(**args)

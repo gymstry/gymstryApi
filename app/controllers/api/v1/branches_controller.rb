@@ -14,13 +14,13 @@ class Api::V1::BranchesController < ApplicationController
     else
       @branches = Branch.load_branches(branch_pagination.merge(branch_params: params[:branch_params]))
     end
-    render json: @branches, status: :ok,each_serializer: Api::V1::BranchSerializer, root: "data",render_attribute: params[:branch_params] || "all"
+    render json: @branches, status: :ok,each_serializer: Api::V1::BranchSerializer, render_attribute: params[:branch_params] || "all"
   end
 
   def show
     if @branch
       if stale?(@branch,public: true)
-        render json: @branch, status: :ok, :location => api_v1_branch_path(@branch), root: "data", serializer: Api::V1::BranchSerializer,render_attribute: params[:branch_params] || "all"
+        render json: @branch, status: :ok, :location => api_v1_branch_path(@branch),  serializer: Api::V1::BranchSerializer,render_attribute: params[:branch_params] || "all"
       end
     else
       record_not_found
@@ -46,19 +46,19 @@ class Api::V1::BranchesController < ApplicationController
   def branches_by_ids
     ids =  set_ids
     @branches = Branch.branches_by_ids(ids,branch_pagination.merge(branch_params: params[:branch_params]))
-    render json: @branches,status: :ok,each_serializer: Api::V1::BranchSerializer, root: "data",render_attribute: params[:branch_params] || "all"
+    render json: @branches,status: :ok,each_serializer: Api::V1::BranchSerializer, render_attribute: params[:branch_params] || "all"
   end
 
   def branches_by_not_ids
     ids = set_ids
     @branches = Branch.branches_by_not_ids(ids,branch_pagination.merge(branch_params: params[:branch_params]))
-    render json: @branches,status: :ok,each_serializer: Api::V1::BranchSerializer, root: "data",render_attribute: params[:branch_params] || "all"
+    render json: @branches,status: :ok,each_serializer: Api::V1::BranchSerializer, render_attribute: params[:branch_params] || "all"
   end
 
   def branches_by_search
     if params.has_key?(:q)
       @branches = Branch.branches_by_search(params[:q],branch_pagination.merge(branch_params: params[:branch_params]))
-      render json: @branches, status: :ok,each_serializer: Api::V1::BranchSerializer, root: "data",render_attribute: params[:branch_params] || "all"
+      render json: @branches, status: :ok,each_serializer: Api::V1::BranchSerializer, render_attribute: params[:branch_params] || "all"
     else
       q_not_found
     end
@@ -71,7 +71,7 @@ class Api::V1::BranchesController < ApplicationController
     else
       @branches = Branch.branches_with_events(branch_pagination.merge(branch_params: params[:branch_params]))
     end
-    render json: @branches, status: :ok,each_serializer: Api::V1::BranchSerializer, root: "data",render_attribute: params[:branch_params] || "all"
+    render json: @branches, status: :ok,each_serializer: Api::V1::BranchSerializer, render_attribute: params[:branch_params] || "all"
   end
 
   def branches_with_trainers
@@ -81,7 +81,7 @@ class Api::V1::BranchesController < ApplicationController
     else
       @branches = Branch.branches_with_trainers(branch_pagination.merge(branch_params: params[:branch_params]))
     end
-    render json: @branches,status: :ok,each_serializer: Api::V1::BranchSerializer, root: "data",render_attribute: params[:branch_params] || "all"
+    render json: @branches,status: :ok,each_serializer: Api::V1::BranchSerializer, render_attribute: params[:branch_params] || "all"
   end
 
   def branches_with_users
@@ -91,7 +91,7 @@ class Api::V1::BranchesController < ApplicationController
     else
       @branches = Branch.branches_with_users(branch_pagination.merge(branch_params: params[:branch_params]))
     end
-    render json: @branches,status: :ok,each_serializer: Api::V1::BranchSerializer, root: "data",render_attribute: params[:branch_params] || "all"
+    render json: @branches,status: :ok,each_serializer: Api::V1::BranchSerializer, render_attribute: params[:branch_params] || "all"
   end
 
   def branches_with_timetables
@@ -101,7 +101,7 @@ class Api::V1::BranchesController < ApplicationController
     else
       @branches = Branch.branches_with_timetables(branch_pagination.merge(branch_params: params[:branch_params]))
     end
-    render json: @branches,status: :ok,each_serializer: Api::V1::BranchSerializer, root: "data",render_attribute: params[:branch_params] || "all"
+    render json: @branches,status: :ok,each_serializer: Api::V1::BranchSerializer, render_attribute: params[:branch_params] || "all"
   end
 
   def branches_with_events_range
@@ -110,7 +110,7 @@ class Api::V1::BranchesController < ApplicationController
      else
        @branches = Branch.branches_with_events_by_range_and_gym(params[:type],{year: params[:year], month: params[:month]}.merge(branch_pagination).merge(branch_params: params[:branch_params]))
      end
-     render json: @branches,status: :ok,each_serializer: Api::V1::BranchSerializer, root: "data",render_attribute: params[:branch_params] || "all"
+     render json: @branches,status: :ok,each_serializer: Api::V1::BranchSerializer, render_attribute: params[:branch_params] || "all"
   end
 
   private

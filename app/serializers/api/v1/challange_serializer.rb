@@ -1,5 +1,6 @@
 class Api::V1::ChallangeSerializer < ActiveModel::Serializer
   include SerializerAttribute
+  type 'data'
   attribute :id, if: :render_id?
   attribute :name, if: :render_name?
   attribute :description, if: :render_name?

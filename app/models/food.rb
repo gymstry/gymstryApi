@@ -21,20 +21,24 @@ class Food < ApplicationRecord
   validates :image, file_size: { less_than_or_equal_to: 1.megabyte }
 
   def self.load_foods(**args)
+    params = (args[:food_params]|| "foods.*") + ","
+    params = params + "foods.id"
     includes(food_days: [:nutrition_routine])
-      .select(args[:food_params] ||  "foods.*")
+      .select(params)
       .paginate(:page => args[:page] || 1, :per_page =>args[:per_page] || 10)
   end
 
-  def self.food_by_id(id)
+  def self.food_by_id(id,**args)
+    params = (args[:food_params] || "foods.*") + ","
+    params = params + "foods.id,foods.updated_at"
     includes(food_days: [:nutrition_routine])
-      .select(args[:food_params] ||  "foods.*")
+      .select(params)
       .find_by_id(id)
   end
 
-  def self.foods_by_name(name,**args)
+  def self.foods_by_search(search,**args)
     load_foods(args)
-      .where("foods.name LIKE ?", "#{name.downcase}%")
+      .where("foods.name LIKE ?", "#{search.downcase}%")
   end
 
   def self.foods_by_ids(ids,**args)
@@ -49,21 +53,22 @@ class Food < ApplicationRecord
 
   def self.foods_by_proteins_greater_than(proteins,**args)
     load_foods(args)
-      .where("foods.proteins > ?", proteins)
+      .where("foods.proteins > ?", proteins || 0)
   end
 
   def self.foods_by_carbohydrates_greater_than(carbohydrates, **args)
     load_foods(args)
-      .where("foods.carbohydrates > ?", carbohydrates)
+      .where("foods.carbohydrates > ?", carbohydrates || 0)
   end
 
   def self.foods_by_fats_greater_than(fats, **args)
     load_foods(args)
-      .where("foods.fats > ?", fats)
+      .where("foods.fats > ?", fats || 0)
   end
 
   def self.foods_with_food_days(**args)
     joins(:food_day_per_foods).select(args[:food_params] ||  "foods.*")
+      .select("count(food_day_per_foods.food_day_id) as food_days_count")
       .group("foods.id")
       .paginate(:page => args[:page] || 1, :per_page => args[:per_page])
       .reorder("count(food_day_per_foods.id)")

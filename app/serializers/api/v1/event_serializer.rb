@@ -1,5 +1,6 @@
 class Api::V1::EventSerializer < ActiveModel::Serializer
   include SerializerAttribute
+  type 'data'
   attribute :id, if: :render_id?
   attribute :description, if: :render_description?
   attribute :name, if: :render_name?

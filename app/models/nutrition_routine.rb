@@ -1,5 +1,5 @@
 class NutritionRoutine < ApplicationRecord
-
+  include Utility
   default_scope {order("nutrition_routines.name ASC")}
   scope :order_by_name, -> (ord) {"nutrition_routines.name #{ord}"}
   scope :order_by_start_date, -> (ord) {"nutrition_routines.start_date #{ord}"}
@@ -17,20 +17,24 @@ class NutritionRoutine < ApplicationRecord
   validate :valid_date
 
   def self.load_nutrition_routines(**args)
+    params = (args[:nutrition_routine_params] || "nutrition_routines.*") + ","
+    params = params + "nutrition_routines.id,nutrition_routines.user_id,nutrition_routines.trainer_id"
     includes(user:[:challanges,:workouts,:medical_record],trainer: [:challanges,:workouts,:qualifications])
-      .select(args[:nutrition_routine_params] || "nutrition_routines.*")
+      .select(params)
       .paginate(:page => args[:page], :per_page => args[:per_page])
   end
 
-  def self.nutrition_routine_by_id(id)
+  def self.nutrition_routine_by_id(id,**args)
+    params = (args[:nutrition_routine_params] || "nutrition_routines.*") + ","
+    params = params + "nutrition_routines.id,nutrition_routines.user_id,nutrition_routines.trainer_id,nutrition_routines.updated_at"
     includes(user:[:challanges,:workouts,:medical_record],trainer: [:challanges,:workouts,:qualifications])
-      .select(args[:nutrition_routine_params] || "nutrition_routines.*")
+      .select(params)
       .find_by_id(id)
   end
 
-  def self.nutrition_routines_by_name(name,**args)
+  def self.nutrition_routines_by_search(search,**args)
     load_nutrition_routines(args)
-      .where("nutrition_routines.name LIKE ?", "#{name.downcase}%")
+      .where("nutrition_routines.name LIKE ?", "#{search.downcase}%")
   end
 
   def self.nutrition_routines_by_ids(ids, **args)
@@ -43,44 +47,44 @@ class NutritionRoutine < ApplicationRecord
       .where.not(nutrition_routines:{id: ids})
   end
 
-  def self.nutrition_routines_by_start_date(date, **args)
+  def self.nutrition_routines_by_start_date(type, **args)
     load_nutrition_routines(args)
-      .where(nutrition_routines:{start_date: date})
+      .where(nutrition_routines:{start_date: NutritionRoutine.new.set_range(type || "today",args[:year] || Date.today.year,args[:month] || 1)})
   end
 
-  def self.nutrition_routines_by_start_date_and_user_id(date,**args)
-    nutrition_routines_by_start_date(date,{page: args[:page],per_page: args[:per_page]})
+  def self.nutrition_routines_by_start_date_and_user_id(type,**args)
+    nutrition_routines_by_start_date(type,{page: args[:page],per_page: args[:per_page],year: args[:year],month: args[:month]})
       .search_by_user_id(args[:user])
   end
 
-  def self.nutrition_routines_by_start_date_and_trainer_id(date,**args)
-    nutrition_routines_by_start_date(date,{page: args[:page],per_page: args[:per_page]})
+  def self.nutrition_routines_by_start_date_and_trainer_id(type,**args)
+    nutrition_routines_by_start_date(type,{page: args[:page],per_page: args[:per_page],year:args[:year],month:args[:month]})
       .search_by_trainer_id(args[:trainer])
   end
 
-  def self.nutrition_routines_by_start_date_and_user_and_trainer_id(date,**args)
-    nutrition_routines_by_start_date(date,{page: args[:page],per_page: args[:per_page]})
+  def self.nutrition_routines_by_start_date_and_user_and_trainer_id(type,**args)
+    nutrition_routines_by_start_date(type,{page: args[:page],per_page: args[:per_page],year:args[:year],month:args[:month]})
       .search_by_trainer_id(args[:trainer])
       .search_by_user_id(args[:per_page])
   end
 
-  def self.nutrition_routines_by_end_date(date, **args)
+  def self.nutrition_routines_by_end_date(type, **args)
     load_nutrition_routines(args)
-      .where(nutrition_routines:{end_date: date})
+      .where(nutrition_routines:{end_date: NutritionRoutine.new.set_range(type || "today",args[:year] || Date.today.year,args[:month] || 1)})
   end
 
-  def self.nutrition_routines_by_end_date_and_user_id(date,**args)
-    nutrition_routines_by_end_date(date,{page: args[:page],per_page: args[:per_page]})
+  def self.nutrition_routines_by_end_date_and_user_id(type,**args)
+    nutrition_routines_by_end_date(type,{page: args[:page],per_page: args[:per_page],year:args[:year],month: args[:month]})
       .search_by_user_id(args[:user])
   end
 
-  def self.nutrition_routines_by_end_date_and_trainer_id(date,**args)
-    nutrition_routines_by_end_date(date,{page: args[:page],per_page: args[:per_page]})
+  def self.nutrition_routines_by_end_date_and_trainer_id(type,**args)
+    nutrition_routines_by_end_date(type,{page: args[:page],per_page: args[:per_page],year: args[:year],month: args[:month]})
       .search_by_trainer_id(args[:trainer])
   end
 
-  def self.nutrition_routines_by_end_date_and_user_and_trainer_id(date,**args)
-    nutrition_routines_by_end_date(date,{page: args[:page],per_page: args[:per_page]})
+  def self.nutrition_routines_by_end_date_and_user_and_trainer_id(type,**args)
+    nutrition_routines_by_end_date(type,{page: args[:page],per_page: args[:per_page],year: args[:year],month: args[:month]})
       .search_by_trainer_id(args[:trainer])
       .search_by_user_id(args[:user])
   end

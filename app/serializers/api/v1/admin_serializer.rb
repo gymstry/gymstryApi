@@ -1,5 +1,6 @@
 class Api::V1::AdminSerializer < ActiveModel::Serializer
   include SerializerAttribute
+  type 'data'
   attribute :id, if: :render_id?
   attribute :name, if: :render_name?
   attribute :email, if: :render_email?

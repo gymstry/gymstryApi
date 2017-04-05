@@ -13,8 +13,11 @@ class Image < ApplicationRecord
   validates :image, file_size: { less_than_or_equal_to: 1.megabyte }
 
   def self.load_images(**args)
+    params = (args[:image_params] || "images.*") + ","
+    params = params + "images.id"
     includes(:imageable)
-    .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
+      .select(params)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
   def self.images_by_gym(gym,**args)
@@ -33,8 +36,11 @@ class Image < ApplicationRecord
         })
   end
 
-  def self.image_by_id(id)
+  def self.image_by_id(id,**args)
+    params = (args[:image_params] || "images.*") + ","
+    params = params + "images.id"
     includes(:imageable)
+      .select(params)
       .find_by_id(id)
   end
 
