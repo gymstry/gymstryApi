@@ -3,8 +3,8 @@ class Rack::Attack
   throttle('req/ip', :limit => 1800, :period => 1.hours) do |req|
     req.ip
   end
-  Rack::Attack.blocklist('allow2ban login scrapers') do
-    Rack::Attack.Allow2Ban.filter(req.ip, :maxretry => 20, :findtime => 1.minute, :bantime => 1.hour) do
+  Rack::Attack.blocklist('allow2ban login scrapers') do |req|
+    Rack::Attack::Allow2Ban.filter('req/ip', :maxretry => 20, :findtime => 1.minute, :bantime => 1.hour) do
       (req.path == '/api/v1/gym_auth/sign_in' && req.post?) ||
         (req.path == '/api/v1/branch_auth/sign_in' && req.post?) ||
           (req.path == '/api/v1/trainer_auth/sign_in' && req.post?) ||
@@ -17,7 +17,7 @@ class Rack::Attack
         (req.path == '/api/v1/trainer_auth/sign_in' && req.post?) ||
           (req.path == '/api/v1/auth/sign_in' && req.post?)
   end
-  
+
   Rack::Attack.throttled_response = lambda do |env|
   now = Time.now
   match_data = env['rack.attack.match_data']
