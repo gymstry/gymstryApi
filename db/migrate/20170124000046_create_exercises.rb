@@ -5,7 +5,7 @@ class CreateExercises < ActiveRecord::Migration[5.0]
       t.text :description, :default => ""
       t.text :problems, :default => ""
       t.string :benefits, :default => ""
-      t.integer :muscle_group
+      t.integer :muscle_group, :null => false
       t.text :elements, array: true, default: []
       t.string :owner, :null => false, :default => "admin"
       t.references :trainer, foreign_key: true

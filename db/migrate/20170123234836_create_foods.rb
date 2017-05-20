@@ -3,9 +3,9 @@ class CreateFoods < ActiveRecord::Migration[5.0]
     create_table :foods do |t|
       t.string :name, :null => false, :unique => true
       t.text :description, :default => ""
-      t.decimal :proteins
-      t.decimal :carbohydrates
-      t.decimal :fats
+      t.decimal :proteins, :null => false, :default => 0
+      t.decimal :carbohydrates, :null => false, :default => 0
+      t.decimal :fats, :null => false, :default => 0
       t.text :image
 
       t.timestamps

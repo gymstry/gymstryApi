@@ -15,10 +15,74 @@ module ControllerUtility
     }, status: :not_found
   end
 
-  def images_needed
+  def q_not_found
+    render json: { data: {
+        status: "Error",
+        error: "We can't find a parameter to search"
+      }
+    }, status: :unprocessable_entity
+  end
+
+  def user_not_found
+    ender json: {data: {
+        status: "Error",
+        error: "We can't find a valid user to associate the measurement"
+      }
+    }, status: :not_found
+  end
+
+  def resource_not_found
+    render json: {data: {
+        status: "Error",
+        error: "We can't find a valid record to associate the image"
+      }
+    }, status: :not_found
+  end
+
+  def user_and_gym
+    render json: {data: {
+        status: "Error",
+        error: "The user doesn't belong to the gym"
+      }
+    }, status: :unauthorized
+  end
+
+  def traniner_and_user
+    render json: {data: {
+        status: "Error",
+        error: "The trainer and the user don't belong to the same branch"
+      }
+    }, status: :unauthorized
+  end
+
+  def nutrition_routine_not_found
+    render json: { data: {
+        status: "Error",
+        error: "The nutrition routine is not valid"
+      }
+    }, status: :unprocessable_entity
+  end
+
+  def foods_needed
     render json: { data: {
         status: "Error",
         error: "The image key is needed"
+      }
+    }, status: :unprocessable_entity
+  end
+
+  def images_needed
+    render json: { data: {
+        status: "Error",
+        error: "The food key is needed"
+      }
+    }, status: :unprocessable_entity
+  end
+
+  def user_needed
+    render json: { data: {
+        status: "Error",
+        error: "The user key is needed"
       }
     }, status: :unprocessable_entity
   end

@@ -4,8 +4,8 @@ class CreateNutritionRoutines < ActiveRecord::Migration[5.0]
       t.string :name, :null => false
       t.text :description, :default => ""
       t.text :objective,  :default => ""
-      t.date :start_date
-      t.date :end_date
+      t.date :start_date, :null => false, :default => Date.today
+      t.date :end_date, :null => false, :default => Date.today + 7
       t.references :user, foreign_key: true
       t.references :trainer, foreign_key: true
 

@@ -39,5 +39,6 @@ module Gymstry
     config.middleware.use Rack::Deflater
     config.autoload_paths += %W(#{config.root}/lib)
     config.middleware.use ActionDispatch::Cookies
-    config.middleware.use ActionDispatch::Session::CookieStore  end
+    config.middleware.use ActionDispatch::Session::CookieStore
+  end
 end

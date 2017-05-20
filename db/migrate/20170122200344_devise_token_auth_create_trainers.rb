@@ -55,6 +55,6 @@ class DeviseTokenAuthCreateTrainers < ActiveRecord::Migration[5.0]
     add_index :trainers, [:uid, :provider],     unique: true
     add_index :trainers, :reset_password_token, unique: true
     add_index :trainers, :confirmation_token,   unique: true
-    add_index :trainers, :unlock_token,       unique: true
+    add_index :trainers, :unlock_token,         unique: true
   end
 end

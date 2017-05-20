@@ -1,6 +1,6 @@
 class WorkoutPerDay < ApplicationRecord
 
-  default_scope {order("workout_per_days.name ASC")}
+  default_scope {order("workout_per_days.id ASC, workout_per_days.order ASC")}
   scope :order_by_name, -> (ord) {order("workout_per_days.name #{ord}")}
   scope :search_by_workout_id, -> (id) {where(workout_per_days:{workout: id})}
   scope :order_by_level, -> (ord) {order("workout_per_days.level #{ord}")}

@@ -4,13 +4,13 @@ class CreateWorkoutPerDays < ActiveRecord::Migration[5.0]
       t.string :name, :null => false
       t.text :description, :default => ""
       t.text :benefits, :default => ""
-      t.integer :level
-      
-      t.references :workout, foreign_key: true
+      t.integer :level, :null => false, :default => 0
+      t.integer :order, :null => false, :default => 0
 
+      t.references :workout, foreign_key: true
       t.timestamps
     end
     add_index :workout_per_days, :name
-
+    add_index :workout_per_days, [:order,:workout_id], unique: true
   end
 end

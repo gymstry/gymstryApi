@@ -6,7 +6,7 @@ class Offer < ApplicationRecord
   scope :order_by_end_day, -> (ord) {order("offers.end_day #{ord}")}
   scope :serarch_by_gym_id, -> (id) {where(offers:{gym_id: id})}
 
-  belongs_to :gym
+  belongs_to :branch
 
   validates :name,:start_day,:end_day,presence: true
   validates :name,length:{minimum: 3}

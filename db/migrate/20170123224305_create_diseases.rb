@@ -2,7 +2,7 @@ class CreateDiseases < ActiveRecord::Migration[5.0]
   def change
     create_table :diseases do |t|
       t.string :name, :null => false, :unique => true
-      t.text :description
+      t.text :description, :default => "", :null => false
 
       t.timestamps
     end

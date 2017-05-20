@@ -40,19 +40,25 @@ class Challange < ApplicationRecord
   validates :name, length: {minimum: 3}
   validate :valid_date
 
-  def self.load_challanges(page = 1, per_page = 10)
+  def self.load_challanges(**args)
+    params = (args[:challenge_params] || "challanges.*") + ","
+    params = params + "challanges.user_id, challanges.id,challanges.trainer_id"
     includes(user: [:medical_record,:challanges,:workouts,:nutrition_routines],trainer: [:qualifications,:challanges,:workouts,:nutrition_routines])
-      .paginate(:page => page, :per_page => per_page)
+      .select(params)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
-  def self.challange_by_id(id)
+  def self.challange_by_id(id,**args)
+    params = (args[:challenge_params] || "challanges.*") + ","
+    params = params + "challanges.user_id, challanges.id,challanges.trainer_id, challanges.updated_at"
     includes(user: [:medical_record,:challanges,:workouts,:nutrition_routines],trainer: [:qualifications,:challanges,:workouts,:nutrition_routines])
+      .select(params)
       .find_by_id(id)
   end
 
-  def self.challanges_by_type(type, page = 1,per_page = 10)
-    query = load_challanges(page,per_page)
-    case type.downcase
+  def self.challanges_by_type(type = "", **args)
+    query = load_challanges(args)
+    case (type || "").downcase
     when "weight"
       query = query.weight
     when "eat_carbohydrates"
@@ -74,9 +80,9 @@ class Challange < ApplicationRecord
     end
   end
 
-  def challanges_by_state(state,page = 1, per_page = 10)
-    query = load_challanges(page,per_page)
-    case state.downcase
+  def self.challanges_by_state(state = "",**args)
+    query = load_challanges(args)
+    case (state || "").downcase
     when "progress"
       query = query.progress
     when "passed"
@@ -88,72 +94,77 @@ class Challange < ApplicationRecord
     end
   end
 
-  def self.challanges_by_name(name,page = 1,per_page = 10)
-    load_challanges(page,per_page)
+  def self.challanges_by_search(name,**args)
+    load_challanges(args)
       .where("challanges.name LIKE ?", "#{name.downcase}%")
   end
 
-  def self.challanges_by_start_date(type, page = 1, per_page = 10, year,month)
-    load_challanges(page,per_page)
-      .where(challanges: {start_date: Challange.new.set_range(type,year,month)})
+  def self.challanges_by_start_date(type = "today", **args)
+    load_challanges({page: args[:page],per_page: args[:per_page]})
+    .where(challanges: {
+        start_date: Challange.new.set_range(type || "today",args[:year] || Date.today.year, args[:month] || 1)
+    })
   end
 
-  def self.challanges_by_start_date_and_trainer(type,trainer,page = 1 ,per_page = 10,year,month)
-    challanges_by_start_date(type,page,per_page,year,month)
-      .search_by_trainer_id(trainer)
+  def self.challanges_by_start_date_and_trainer(type = "today",**args)
+    challanges_by_start_date(type,{page: args[:page],per_page: args[:per_page],year:args[:year],month: args[:month]})
+      .search_by_trainer_id(args[:trainer])
   end
 
-  def self.challanges_by_start_date_and_user(type,user, page = 1, per_page = 10,year,month)
-    challanges_by_start_date(type,page,per_page,year,month)
-      .search_by_user_id(user)
+  def self.challanges_by_start_date_and_user(type = "today",**args)
+    challanges_by_start_date(type,{page: args[:page],per_page: args[:per_page],year:args[:year],month: args[:month]})
+      .search_by_user_id(args[:user])
   end
 
-  def self.challanges_by_start_date_and_user_and_trainer(type,user,trainer,page = 1, per_page = 10,year,month)
-    challanges_by_start_date(type,page,per_page,year,month)
-      .search_by_user_id(user)
-      .search_by_trainer_id(trainer)
+  def self.challanges_by_start_date_and_user_and_trainer(type = "today",**args)
+    challanges_by_start_date(type,{page: args[:page],per_page: args[:per_page],year:args[:year],month: args[:month]})
+      .search_by_user_id(args[:user])
+      .search_by_trainer_id(args[:trainer])
   end
 
-  def self.challanges_by_end_date(type, page = 1, per_page = 10,year,month)
-    load_challanges(page,per_page)
-      .where(challanges: {end_date: Challange.new.set_range(type,year,month)})
+  def self.challanges_by_end_date(type = "today", **args)
+    load_challanges({page:args[:page],per_page:args[:per_page]})
+      .where(challanges: {
+        end_date: Challange.new.set_range(type || "today",args[:year] || Date.today.year,args[:month] || 1)
+      })
   end
 
-  def self.challanges_by_end_date_and_trainer(type, trainer, page = 1, per_page = 10,year,month)
-    challanges_by_end_date(type,page,per_page,year,month)
-      .search_by_trainer_id(trainer)
+  def self.challanges_by_end_date_and_trainer(type = "today", **args)
+    challanges_by_end_date(type,{page:args[:page],per_page: args[:per_page],year: args[:year],month: args[:month]})
+      .search_by_trainer_id(args[:trainer])
   end
 
-  def self.challanges_by_end_date_and_user(type, user, page = 1 ,per_page = 10,year,month)
-    challanges_by_end_date(type,page,per_page,year,month)
-      .search_by_user_id(user)
+  def self.challanges_by_end_date_and_user(type = "today", **args)
+    challanges_by_end_date(type,{page:args[:page],per_page: args[:per_page],year: args[:year],month: args[:month]})
+      .search_by_user_id(args[:user])
   end
 
-  def self.challanges_by_end_date_and_user_and_trainer(type,user,trainer,page = 1, per_page = 10,year,month)
-    challanges_by_end_date(type,page,per_page,year,month)
-      .search_by_user_id(user)
-      .search_by_trainer_id(trainer)
+  def self.challanges_by_end_date_and_user_and_trainer(type = "today",**args)
+    challanges_by_end_date(type,{page:args[:page],per_page: args[:per_page],year: args[:year],month: args[:month]})
+      .search_by_user_id(args[:user])
+      .search_by_trainer_id(args[:trainer])
   end
 
-  def self.challanges_by_user_id(user_id, page = 1, per_page = 10)
-    load_challanges(page,per_page).search_by_user_id(user_id)
+  def self.challanges_by_user_id(user_id, **args)
+    load_challanges(args).search_by_user_id(user_id)
   end
 
-  def self.challanges_by_trainer_id(trainer_id, page = 1, per_page = 10)
-    load_challanges(page,per_page).search_by_trainer_id(trainer_id)
+  def self.challanges_by_trainer_id(trainer_id,**args)
+    load_challanges(args).search_by_trainer_id(trainer_id)
   end
 
-  def self.challanges_by_user_and_trainer_id(user,trainer, page = 1, per_page = 10)
-    load_challanges(page,per_page).search_by_user_id(user).search_by_trainer_id(trainer)
+  def self.challanges_by_user_and_trainer_id(user,**args)
+    load_challanges({page: args[:page],per_page: args[:per_page]})
+      .search_by_user_id(user).search_by_trainer_id(args[:trainer])
   end
 
-  def self.challanges_by_ids(ids,page = 1, per_page = 10)
-    load_challanges(page,per_page)
+  def self.challanges_by_ids(ids,**args)
+    load_challanges(args)
       .where(challanges: {id: ids})
   end
 
-  def self.challanges_by_not_ids(ids,page = 1, per_page = 10)
-    load_challanges(page,per_page)
+  def self.challanges_by_not_ids(ids,**args)
+    load_challanges(**args)
       .where.not(challanges: {id: ids})
   end
 
@@ -163,10 +174,10 @@ class Challange < ApplicationRecord
   end
 
   def valid_date
-    if start_date && start_date < Date.today
+    if !start_date && start_date < Date.today
       errors.add(:start_date, "can't be in the past")
     end
-    if start_date && end_date && start_date > end_date
+    if !start_date && !end_date && start_date > end_date
       errors.add(:end_date, "must be greater than start_date")
     end
   end

@@ -13,49 +13,62 @@ class Disease < ApplicationRecord
   validates :name, uniqueness: true
   validates :description, length: { in: 10...250 }
 
-  def self.load_diseases(page = 1, per_page = 10)
+  def self.load_diseases(**args)
+    params = (args[:disease_params] || "diseases.*") + ","
+    params = params + "diseases.id"
     includes(medical_records: [:user])
-      .paginate(:page => page, :per_page => per_page)
+      .select(params)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
   end
 
-  def self.disease_by_id(id)
+  def self.disease_by_id(id,**args)
+    params = (args[:disease_params] || "diseases.*") + ","
+    params = params + "diseases.id,diseases.updated_at"
     includes(medical_records: [:user])
-      .find_by_id(:id)
+      .select(params)
+      .find_by_id(id)
   end
 
-  def self.diseases_by_name(name,page = 1, per_page = 10)
-    load_diseases(page,per_page)
+  def self.diseases_by_search(name,**args)
+    load_diseases(args)
+      .select(args[:disease_params] || "diseases.*")
       .where("diseases.name LIKE ?", "#{name.downcase}%")
   end
 
-  def self.diseases_by_ids(ids, page = 1, per_page = 10)
-    load_diseases(page,per_page)
+  def self.diseases_by_ids(ids, **args)
+    load_diseases(args)
       .where(diseases: {id: ids})
   end
 
-  def self.diseases_by_not_ids(ids,page = 1, per_page = 10)
-    load_diseases(page,per_page)
+  def self.diseases_by_not_ids(ids,**args)
+    load_diseases(args)
       .where.not(diseases:{id: ids})
   end
 
-  def self.diseases_with_medical_records(page = 1, per_page = 10)
-    joins(:medical_records).select('diseases.*')
+  def self.diseases_with_medical_records(**args)
+    joins(:medical_records).select(args[:disease_params] || "diseases.*")
+      .select("count(medical_records.id) AS count_medical_records")
       .group("diseases.id")
-      .paginate(:page => page, :per_page => per_page)
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
       .reorder("count(medical_records.id)")
   end
 
-  def self.diseases_with_medical_records_by_id(id, page = 1, per_page = 10)
-    load_diseases(page,per_page)
-      .where(medical_record_by_diseases: {medical_record_id: id})
+  def self.diseases_with_medical_records_by_id(id, **args)
+    joins(:medical_records).select(args[:disease_params] || "diseases.*")
+      .group("diseases.id")
+      .where(medical_records: {
+        id: id
+      })
+      .paginate(:page => args[:page] || 1, :per_page => args[:per_page] || 10)
+      .reorder("count(medical_records.id)")
   end
 
-  def self.diseases_by_user(user,page = 1, per_page = 10)
-    joins(medical_records: :user)
+  def self.diseases_by_user(user,**args)
+    joins(medical_records: :user).select(args[:disease_params] || "diseases.*")
       .group("diseases.id")
       .where(users: {
           id: user
-      }).paginate(:page => page,:per_page => per_page)
+      }).paginate(:page => args[:page] || 1,:per_page => args[:per_page] || 10)
   end
 
 end

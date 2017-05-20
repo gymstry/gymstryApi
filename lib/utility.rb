@@ -1,6 +1,6 @@
 module Utility
-  
-  def set_range(type,year_number,month_number)
+
+  def set_range(type = "today",year_number = Date.today.year,month_number = 1)
     range = nil
     case type.downcase
       when "today"
