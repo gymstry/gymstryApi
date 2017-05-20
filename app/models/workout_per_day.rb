@@ -6,7 +6,7 @@ class WorkoutPerDay < ApplicationRecord
   scope :order_by_level, -> (ord) {order("workout_per_days.level #{ord}")}
 
   belongs_to :workout
-  has_many :workout_per_day_per_exercises
+  has_many :workout_per_day_per_exercises, dependent: :destroy
   has_many :routines, -> {reorder("exercises.name ASC")}, through: :workout_per_day_per_exercises
 
   enum level:{

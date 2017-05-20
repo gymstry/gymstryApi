@@ -6,7 +6,7 @@ class CreateTimetables < ActiveRecord::Migration[5.0]
       t.string :close_hour, :null => false
       t.boolean :repeat, :default => true
       t.boolean :closed, :default => false
-      t.references :branch, foreign_key: true, on_delete: :cascade
+      t.references :branch, foreign_key: true
 
       t.timestamps
     end

@@ -8,8 +8,8 @@ class CreateChallanges < ActiveRecord::Migration[5.0]
       t.date :end_date, :null => false, :default =>  Date.today + 7 #Minimum a week
       t.integer :state, :default => 0
       t.decimal :objective
-      t.references :trainer, foreign_key: true, on_delete: :nullify
-      t.references :user, foreign_key: true, on_delete: :cascade
+      t.references :trainer, foreign_key: true
+      t.references :user, foreign_key: true
 
       t.timestamps
     end

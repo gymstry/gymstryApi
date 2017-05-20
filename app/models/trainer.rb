@@ -18,16 +18,16 @@ class Trainer < ActiveRecord::Base
   scope :search_by_branch_id, -> (id) {where(trainers:{branch_id: id})}
 
   belongs_to :branch, optional: true
-  has_many :qualifications, -> {reorder("qualifications.created_at ASC")}
-  has_many :challanges, -> {reorder("challanges.start_date ASC")}
+  has_many :qualifications, -> {reorder("qualifications.created_at ASC")}, dependent: :destroy
+  has_many :challanges, -> {reorder("challanges.start_date ASC")}, dependent: :nullify
   has_many :c_users, through: :challanges, source: :user
-  has_many :measurements,-> {reorder("measurements.created_at ASC")}
+  has_many :measurements,-> {reorder("measurements.created_at ASC")}, dependent: :nullify
   has_many :m_users, through: :measurements, source: :user
-  has_many :nutrition_routines, ->{reorder("nutrition_routines.start_date ASC")}
+  has_many :nutrition_routines, ->{reorder("nutrition_routines.start_date ASC")}, dependent: :nullify
   has_many :n_users, through: :nutrition_routines, source: :user
-  has_many :workouts, -> {reorder("workouts.start_date  ASC")}
+  has_many :workouts, -> {reorder("workouts.start_date  ASC")}, dependent: :nullify
   has_many :w_users, through: :workouts, source: :user
-  has_many :exercises, -> {reorder("exercises.name ASC")}
+  has_many :exercises, -> {reorder("exercises.name ASC")}, dependent: :destroy
 
   # If the trainer is a personal trainer we must create another end point where this trainer can create a branch because our logic is around the branch table
   enum type_trainer: {

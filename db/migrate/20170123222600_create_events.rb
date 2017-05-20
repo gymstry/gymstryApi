@@ -8,7 +8,7 @@ class CreateEvents < ActiveRecord::Migration[5.0]
       t.decimal :duration, :default => 1, :null => false
       t.integer :type_event, :default => 0
       t.text :image
-      t.references :branch, foreign_key: true, on_delete: :cascade
+      t.references :branch, foreign_key: true
       t.timestamps
     end
     add_index :events, :name

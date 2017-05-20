@@ -5,7 +5,7 @@ class Disease < ApplicationRecord
   scope :order_by_name, -> (ord) {order("diseases.name #{ord}")}
   scope :order_by_created_at, -> (ord) {order("diseases.created_at #{ord}")}
 
-  has_many :medical_record_by_diseases
+  has_many :medical_record_by_diseases, dependent: :destroy
   has_many :medical_records, through: :medical_record_by_diseases
 
   validates :name,:description, presence: true

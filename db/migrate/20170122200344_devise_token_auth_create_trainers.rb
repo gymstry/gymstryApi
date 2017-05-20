@@ -43,7 +43,7 @@ class DeviseTokenAuthCreateTrainers < ActiveRecord::Migration[5.0]
       t.text :avatar
       t.date :birthday
       t.string :username
-      t.references :branch, foreing_key: true, on_delete: :cascade
+      t.references :branch, foreing_key: true
       ## Tokens
       t.json :tokens
 

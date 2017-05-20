@@ -9,9 +9,9 @@ class MedicalRecord < ApplicationRecord
   scope :search_by_user, -> (id) {where("medical_records.user_id = ?", id)}
 
   belongs_to :user
-  has_many :medical_record_by_diseases
+  has_many :medical_record_by_diseases, dependent: :destroy
   has_many :diseases, -> {(reorder("diseases.name ASC"))}, through: :medical_record_by_diseases
-  has_many :prohibited_exercises
+  has_many :prohibited_exercises, dependent: :destroy
   has_many :exercises, -> {(reorder("exercises.name ASC"))}, through: :prohibited_exercises
 
   validates :weight,:chest,:hips,:waist,:body_fat_percentage,presence: true

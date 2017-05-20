@@ -8,7 +8,7 @@ class CreateMedicalRecords < ActiveRecord::Migration[5.0]
       t.decimal :waist, :null => false
       t.decimal :hips, :null => false
       t.decimal :chest, :null => false
-      t.references :user, foreign_key: true, index: {unique: true}, on_delete: :cascade 
+      t.references :user, foreign_key: true, index: {unique: true}
 
       t.timestamps
     end

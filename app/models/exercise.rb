@@ -9,9 +9,9 @@ class Exercise < ApplicationRecord
   scope :search_by_trainer, -> (id) {where(exercises:{branch_id: id})}
 
   has_many :images, as: :imageable, dependent: :destroy
-  has_many :prohibited_exercises
+  has_many :prohibited_exercises, dependent: :nullify
   has_many :medical_records, -> {(reorder("medical_records.created_at ASC"))}, through: :prohibited_exercises
-  has_many :routines
+  has_many :routines, dependent: :nullify
   belongs_to :trainer, optional: true
 
   #We need to add more groups

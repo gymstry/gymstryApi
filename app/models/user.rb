@@ -18,13 +18,13 @@ class User < ActiveRecord::Base
 
   belongs_to :branch
   has_one :medical_record, dependent: :destroy
-  has_many :challanges, -> {reorder("challanges.start_date ASC")}
+  has_many :challanges, -> {reorder("challanges.start_date ASC")}, dependent: :destroy
   has_many :c_trainers, through: :challanges, source: :trainer
-  has_many :measurements, -> {reorder("measurements.created_at ASC")}
+  has_many :measurements, -> {reorder("measurements.created_at ASC")}, dependent: :destroy
   has_many :m_trainers, through: :measurements, source: :trainer
-  has_many :nutrition_routines, -> {reorder("nutrition_routines.start_date ASC")}
+  has_many :nutrition_routines, -> {reorder("nutrition_routines.start_date ASC")}, dependent: :destroy
   has_many :n_trainers, through: :nutrition_routines, source: :trainer
-  has_many :workouts, -> {reorder("workouts.start_date")}
+  has_many :workouts, -> {reorder("workouts.start_date")}, dependent: :destroy
   has_many :w_trainers, through: :workouts, source: :trainer
 
   enum gender: {

@@ -4,7 +4,7 @@ class CreateQualifications < ActiveRecord::Migration[5.0]
       t.text :description, :null => false, :default => ""
       t.string :name, :null => false
       t.text :qualification
-      t.references :trainer, foreign_key: true, on_delete: :cascade
+      t.references :trainer, foreign_key: true
 
       t.timestamps
     end

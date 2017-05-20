@@ -10,7 +10,7 @@ class NutritionRoutine < ApplicationRecord
 
   belongs_to :user
   belongs_to :trainer, optional: true
-  has_many :food_days, -> {reorder("food_days.type_food ASC")}
+  has_many :food_days, -> {reorder("food_days.type_food ASC")}, dependent: :destroy
 
   validates :name, :start_date, :end_date, presence: true
   validates :name, length: {minimum: 3}

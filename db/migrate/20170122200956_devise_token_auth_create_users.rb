@@ -44,7 +44,7 @@ class DeviseTokenAuthCreateUsers < ActiveRecord::Migration[5.0]
       t.date :birthday
       t.integer :gender
       t.text :objective
-      t.references :branch, foreing_key: true, on_delete: :cascade
+      t.references :branch, foreing_key: true
 
       ## Tokens
       t.json :tokens

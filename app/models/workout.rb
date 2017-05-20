@@ -17,7 +17,7 @@ class Workout < ApplicationRecord
 
   belongs_to :user
   belongs_to :trainer
-  has_many :workout_per_day, -> {reorder("workout_per_days.name ASC")}
+  has_many :workout_per_day, -> {reorder("workout_per_days.name ASC")}, dependent: :destroy
 
   validates :name, :start_date, :end_date,:days,:level,presence: true
   validates :name, length: {minimum: 3}

@@ -7,8 +7,7 @@ class CreateWorkoutPerDays < ActiveRecord::Migration[5.0]
       t.integer :level, :null => false, :default => 0
       t.integer :order, :null => false, :default => 0
 
-      t.references :workout, foreign_key: true, on_delete: :cascade
-
+      t.references :workout, foreign_key: true
       t.timestamps
     end
     add_index :workout_per_days, :name

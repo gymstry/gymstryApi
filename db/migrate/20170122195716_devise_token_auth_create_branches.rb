@@ -38,7 +38,7 @@ class DeviseTokenAuthCreateBranches < ActiveRecord::Migration[5.0]
       t.string :email
       t.string :address
       t.string :telephone
-      t.references :gym, foreing_key: true, on_delete: :cascade
+      t.references :gym, foreing_key: true
 
       ## Tokens
       t.json :tokens

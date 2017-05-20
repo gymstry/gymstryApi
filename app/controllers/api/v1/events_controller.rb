@@ -28,7 +28,7 @@ class Api::V1::EventsController < ApplicationController
       record_not_found
     end
   end
-
+  
   def create
     @event = Event.new(event_params)
     @event.branch_id = current_branch.id

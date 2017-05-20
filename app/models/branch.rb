@@ -12,11 +12,11 @@ class Branch < ActiveRecord::Base
   scope :search_by_gym_id, -> (id) {where(branches:{gym_id: id})}
 
   belongs_to :gym, optional: true
-  has_many :users, -> {reorder("users.name ASC, users.lastname ASC ")}
-  has_many :trainers, -> {reorder("trainers.name ASC, trainers.lastname ASC")}
-  has_many :events, -> {reorder("events.class_date ASC")}
-  has_many :timetables
-  has_many :offers
+  has_many :users, -> {reorder("users.name ASC, users.lastname ASC ")}, dependent: :destroy
+  has_many :trainers, -> {reorder("trainers.name ASC, trainers.lastname ASC")}, dependent: :destroy
+  has_many :events, -> {reorder("events.class_date ASC")}, dependent: :destroy
+  has_many :timetables, dependent: :destroy
+  has_many :offers, dependent: :destroy
 
   # Horarios en otra tabla
   validates :name, :email, :address, :telephone, presence: true

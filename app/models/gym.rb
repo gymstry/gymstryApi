@@ -12,9 +12,9 @@ class Gym < ActiveRecord::Base
   scope :order_by_birthday, -> (ord) {order("gyms.birthday #{ord}")}
   scope :order_by_created_at, -> (ord) {order("gyms.created_at #{ord}")}
 
-  has_many :branches, -> {reorder("branches.name ASC")}
+  has_many :branches, -> {reorder("branches.name ASC")}, dependent: :destroy
   has_many :images, as: :imageable, dependent: :destroy
-  has_many :offers, dependent: :destroy
+  #has_many :offers, dependent: :destroy
 
   validates :name, :description, :address, :telephone, :email, :birthday, presence: true
   validates :name, :email, :telephone, uniqueness: true

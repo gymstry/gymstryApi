@@ -6,8 +6,8 @@ class CreateMeasurements < ActiveRecord::Migration[5.0]
       t.decimal :chest, :null => false, :default => 0
       t.decimal :body_fat_percentage, :null => false, :default => 0
       t.decimal :waist, :null => false, :default => 0
-      t.references :user, foreign_key: true, on_delete: :cascade
-      t.references :trainer, foreign_key: true, on_delete: :nullify
+      t.references :user, foreign_key: true
+      t.references :trainer, foreign_key: true
 
       t.timestamps
     end

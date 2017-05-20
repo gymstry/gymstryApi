@@ -6,7 +6,7 @@ class FoodDay < ApplicationRecord
   scope :search_by_nutrition_routine_id, -> (id) {where(food_days:{nutrition_routine_id:id})}
 
   belongs_to :nutrition_routine
-  has_many :food_day_per_foods
+  has_many :food_day_per_foods, dependent: :destroy
   has_many :foods, -> {reorder("foods.name ASC")}, through: :food_day_per_foods
 
   enum type_food: {

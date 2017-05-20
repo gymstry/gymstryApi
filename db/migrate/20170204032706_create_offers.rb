@@ -5,7 +5,7 @@ class CreateOffers < ActiveRecord::Migration[5.0]
       t.date :start_day, :null => false, :default => Date.today
       t.date :end_day, :null => false
       t.text :description, :null => false, :defaut => ""
-      t.references :branch, foreign_key: true, on_delete: :cascade
+      t.references :branch, foreign_key: true
 
       t.timestamps
     end
