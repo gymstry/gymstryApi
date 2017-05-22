@@ -69,7 +69,7 @@ gem 'mini_magick'
 gem 'file_validators'
 
 #serializers
-gem 'active_model_serializers'
+gem 'active_model_serializers',  '0.10.0.rc4'
 
 #for testing
 gem 'database_cleaner'

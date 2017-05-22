@@ -85,8 +85,8 @@ ActiveRecord::Schema.define(version: 20170204032706) do
     t.string   "name",                                  null: false
     t.text     "description",    default: ""
     t.integer  "type_challange"
-    t.date     "start_date",     default: '2017-05-20', null: false
-    t.date     "end_date",       default: '2017-05-27', null: false
+    t.date     "start_date",     default: '2017-05-22', null: false
+    t.date     "end_date",       default: '2017-05-29', null: false
     t.integer  "state",          default: 0
     t.decimal  "objective"
     t.integer  "trainer_id"
@@ -110,7 +110,7 @@ ActiveRecord::Schema.define(version: 20170204032706) do
     t.string   "name",                                        null: false
     t.text     "description", default: ""
     t.string   "otro_name",   default: "",                    null: false
-    t.datetime "class_date",  default: '2017-05-20 21:42:09'
+    t.datetime "class_date",  default: '2017-05-22 15:54:59'
     t.decimal  "duration",    default: "1.0",                 null: false
     t.integer  "type_event",  default: 0
     t.text     "image"
@@ -256,8 +256,8 @@ ActiveRecord::Schema.define(version: 20170204032706) do
     t.string   "name",                               null: false
     t.text     "description", default: ""
     t.text     "objective",   default: ""
-    t.date     "start_date",  default: '2017-05-20', null: false
-    t.date     "end_date",    default: '2017-05-27', null: false
+    t.date     "start_date",  default: '2017-05-22', null: false
+    t.date     "end_date",    default: '2017-05-29', null: false
     t.integer  "user_id"
     t.integer  "trainer_id"
     t.datetime "created_at",                         null: false
@@ -269,7 +269,7 @@ ActiveRecord::Schema.define(version: 20170204032706) do
 
   create_table "offers", force: :cascade do |t|
     t.string   "name",                               null: false
-    t.date     "start_day",   default: '2017-05-20', null: false
+    t.date     "start_day",   default: '2017-05-22', null: false
     t.date     "end_day",                            null: false
     t.text     "description",                        null: false
     t.integer  "branch_id"
@@ -432,9 +432,9 @@ ActiveRecord::Schema.define(version: 20170204032706) do
     t.string   "name",                               null: false
     t.text     "description", default: ""
     t.text     "objective",   default: ""
-    t.date     "start_date",  default: '2017-05-20', null: false
+    t.date     "start_date",  default: '2017-05-22', null: false
     t.integer  "days",                               null: false
-    t.date     "end_date",    default: '2017-05-27', null: false
+    t.date     "end_date",    default: '2017-05-29', null: false
     t.integer  "day",         default: 0
     t.integer  "level"
     t.integer  "trainer_id"
